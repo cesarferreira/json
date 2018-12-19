@@ -18,6 +18,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     if (top != window) {
         //     top.location.replace("http://json.parser.online.fr");
         //     return;
+        console.log("top != window");
+
     }
     (function() {
         /**
@@ -30,6 +32,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
              * @return {?}
              */
             function parseDate(string) {
+                console.log(string);
                 return resolve(trim(string));
             }
             /**
