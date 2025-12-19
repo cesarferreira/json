@@ -282,6 +282,15 @@ html, body {
   font-size: 14px;
 }
 
+/* Twemoji styling */
+img.emoji {
+  height: 1em;
+  width: 1em;
+  margin: 0 0.1em;
+  vertical-align: -0.1em;
+  display: inline-block;
+}
+
 /* Main Layout */
 .main {
   display: flex;

@@ -1,5 +1,9 @@
 import './style.css'
 
+declare const twemoji: {
+  parse(node: HTMLElement | string, options?: { folder: string; ext: string }): void
+}
+
 type JsonValue = string | number | boolean | null | JsonObject | JsonArray
 type JsonObject = { [key: string]: JsonValue }
 type JsonArray = JsonValue[]
@@ -804,6 +808,12 @@ function closeUrlModal() {
 
 // ============ THEME ============
 
+function parseEmojis() {
+  if (typeof twemoji !== 'undefined') {
+    twemoji.parse(document.body, { folder: 'svg', ext: '.svg' })
+  }
+}
+
 function toggleTheme() {
   const currentTheme = document.documentElement.getAttribute('data-theme')
   const newTheme = currentTheme === 'light' ? 'dark' : 'light'
@@ -813,6 +823,7 @@ function toggleTheme() {
 
   const themeIcon = themeBtn.querySelector('.theme-icon') as HTMLSpanElement
   themeIcon.textContent = newTheme === 'light' ? '☀️' : '🌙'
+  parseEmojis()
 }
 
 function loadTheme() {
@@ -1146,3 +1157,6 @@ if (!loadFromStorage()) {
 handleInput()
 showEmpty()
 handleInput()
+
+// Parse emojis with Twemoji
+parseEmojis()
