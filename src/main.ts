@@ -928,11 +928,10 @@ async function initAISession(showProgress = false) {
     }
 
     aiSession = await languageModel.create({
-      systemPrompt: `You're a friendly assistant helping users explore their JSON data.
-Answer naturally and conversationally - don't be robotic or repetitive.
-Be concise and direct. For simple questions, give simple answers (e.g., "6 features" or "1250 users").
-Only elaborate when the user asks for details or explanation.
-You can reference JSON paths like "settings.theme" when helpful.`,
+      systemPrompt: `You help users explore JSON data. Answer in plain English.
+After your answer, write "Source:" followed by the JSON path.
+Example answer: "The theme is dark. Source: settings.theme"
+Keep answers short.`,
       expectedOutputLanguages: ['en'],
       monitor
     })
@@ -954,6 +953,117 @@ You can reference JSON paths like "settings.theme" when helpful.`,
   }
 }
 
+function makePathsClickable(element: HTMLElement) {
+  // First handle code elements
+  const codeElements = element.querySelectorAll('code')
+  codeElements.forEach(code => {
+    const text = code.textContent || ''
+    // Check if it looks like a JSON path - must contain a dot, bracket, or start with $
+    const looksLikePath = /^[$\w][\w.[\]0-9]*$/.test(text) &&
+                          (text.includes('.') || text.includes('[') || text.startsWith('$'))
+    if (looksLikePath && text.length > 1) {
+      code.classList.add('json-path-link')
+      code.title = `Go to ${text}`
+      code.addEventListener('click', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        navigateToJsonPath(text)
+      })
+    }
+  })
+
+  // Also scan plain text for path patterns after "Source:" or paths with dots
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null)
+  const textNodes: Text[] = []
+  let node: Text | null
+  while ((node = walker.nextNode() as Text)) {
+    textNodes.push(node)
+  }
+
+  // Pattern 1: "Source: path.to.value" - specifically look for Source: prefix
+  // Pattern 2: paths with dots like "settings.theme" but only if they have 2+ segments
+  const sourcePattern = /Source:\s*([\w][\w.[\]0-9]*)/gi
+  const pathPattern = /\b([\w]+\.[\w.[\]0-9]+)\b/g
+
+  textNodes.forEach(textNode => {
+    const text = textNode.textContent || ''
+    const parent = textNode.parentNode
+    if (!parent || parent.nodeName === 'CODE') return
+
+    // First try to find "Source: path" pattern
+    sourcePattern.lastIndex = 0
+    const sourceMatch = sourcePattern.exec(text)
+
+    if (sourceMatch) {
+      const fragment = document.createDocumentFragment()
+      const beforeSource = text.slice(0, sourceMatch.index).trim()
+      const pathValue = sourceMatch[1]
+      const afterPath = text.slice(sourceMatch.index + sourceMatch[0].length)
+
+      if (beforeSource) {
+        fragment.appendChild(document.createTextNode(beforeSource + ' '))
+      }
+
+      // Create a sub-bubble for the source
+      const sourceContainer = document.createElement('span')
+      sourceContainer.className = 'ai-source-bubble'
+
+      const pathSpan = document.createElement('code')
+      pathSpan.className = 'json-path-link'
+      pathSpan.textContent = pathValue
+      pathSpan.title = `Go to ${pathValue}`
+      pathSpan.addEventListener('click', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        navigateToJsonPath(pathValue)
+      })
+      sourceContainer.appendChild(pathSpan)
+      fragment.appendChild(sourceContainer)
+
+      if (afterPath.trim()) {
+        fragment.appendChild(document.createTextNode(afterPath))
+      }
+
+      parent.replaceChild(fragment, textNode)
+      return
+    }
+
+    // Fallback: look for dotted paths like "settings.theme"
+    pathPattern.lastIndex = 0
+    if (!pathPattern.test(text)) return
+    pathPattern.lastIndex = 0
+
+    const fragment = document.createDocumentFragment()
+    let lastIndex = 0
+    let match: RegExpExecArray | null
+
+    while ((match = pathPattern.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)))
+      }
+      const pathSpan = document.createElement('code')
+      pathSpan.className = 'json-path-link'
+      pathSpan.textContent = match[1]
+      pathSpan.title = `Go to ${match[1]}`
+      pathSpan.addEventListener('click', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        navigateToJsonPath(match![1])
+      })
+      fragment.appendChild(pathSpan)
+      lastIndex = pathPattern.lastIndex
+    }
+
+    if (lastIndex < text.length) {
+      fragment.appendChild(document.createTextNode(text.slice(lastIndex)))
+    }
+
+    if (lastIndex > 0) {
+      parent.replaceChild(fragment, textNode)
+    }
+  })
+}
+
 function addAIMessage(content: string, type: 'user' | 'ai' | 'loading' | 'system') {
   const messageDiv = document.createElement('div')
   messageDiv.className = `ai-message ai-message-${type}`
@@ -966,6 +1076,8 @@ function addAIMessage(content: string, type: 'user' | 'ai' | 'loading' | 'system
   } else if (type === 'ai') {
     // Render markdown for AI responses
     messageDiv.innerHTML = marked.parse(content) as string
+    // Make JSON paths clickable
+    makePathsClickable(messageDiv)
   } else {
     messageDiv.textContent = content
   }
@@ -1016,11 +1128,11 @@ async function sendAIMessage() {
     console.log('[AI] Session methods:', Object.keys(aiSession), aiSession)
 
     // Build the prompt with JSON context
-    const promptText = `JSON:
+    const promptText = `JSON data:
 ${jsonData}
 
-Q: ${question}
-Answer briefly and directly:`
+Question: ${question}
+Answer (then write "Source: path.to.value"):`
 
     console.log('[AI] Calling prompt with:', promptText.substring(0, 100) + '...')
 
@@ -1044,10 +1156,13 @@ Answer briefly and directly:`
         messageDiv.innerHTML = marked.parse(fullResponse) as string
         aiMessages.scrollTop = aiMessages.scrollHeight
       }
+      // Make paths clickable after streaming completes
+      makePathsClickable(messageDiv)
     } else if (typeof aiSession.prompt === 'function') {
       console.log('[AI] Using prompt() method (non-streaming)')
       fullResponse = await aiSession.prompt(promptText)
       messageDiv.innerHTML = marked.parse(fullResponse) as string
+      makePathsClickable(messageDiv)
     } else {
       console.error('[AI] No known method found on session:', aiSession)
       throw new Error('No prompt method available')
@@ -1241,6 +1356,83 @@ function collapseAll() {
   toggles.forEach(toggle => { toggle.textContent = '▶' })
   children.forEach(child => { child.classList.add('collapsed') })
   brackets.forEach(bracket => { bracket.classList.add('collapsed') })
+}
+
+function navigateToJsonPath(pathStr: string) {
+  console.log('[Navigate] Looking for path:', pathStr)
+
+  // Convert simple path like "stats.users" to full path "$.stats.users"
+  let fullPath = pathStr.trim()
+  if (!fullPath.startsWith('$')) {
+    fullPath = '$.' + fullPath
+  }
+  console.log('[Navigate] Full path:', fullPath)
+
+  // Find the element with this path
+  const allLines = jsonTree.querySelectorAll('.tree-line[data-path]')
+  let targetLine: HTMLElement | null = null
+
+  // Try exact match first
+  for (const line of allLines) {
+    const linePath = (line as HTMLElement).dataset.path
+    if (linePath === fullPath || linePath === pathStr) {
+      targetLine = line as HTMLElement
+      console.log('[Navigate] Found exact match:', linePath)
+      break
+    }
+  }
+
+  // If not found, try matching the key name (last part of path)
+  if (!targetLine) {
+    const keyName = pathStr.split('.').pop() || pathStr
+    for (const line of allLines) {
+      const linePath = (line as HTMLElement).dataset.path || ''
+      if (linePath === fullPath || linePath.endsWith('.' + keyName)) {
+        targetLine = line as HTMLElement
+        console.log('[Navigate] Found partial match:', linePath)
+        break
+      }
+    }
+  }
+
+  if (targetLine) {
+    // Switch to editor mode first if in diff mode
+    if (!diffView.classList.contains('hidden')) {
+      setEditorMode()
+    }
+
+    // Expand all parent nodes to make the target visible
+    let parent = targetLine.parentElement
+    while (parent && parent !== jsonTree) {
+      if (parent.classList.contains('children')) {
+        parent.classList.remove('collapsed')
+        // Update the toggle button
+        const prevSibling = parent.previousElementSibling
+        if (prevSibling) {
+          const toggle = prevSibling.querySelector('.toggle')
+          const bracket = prevSibling.querySelector('.bracket')
+          if (toggle) toggle.textContent = '▼'
+          if (bracket) bracket.classList.remove('collapsed')
+        }
+      }
+      parent = parent.parentElement
+    }
+
+    // Small delay to let DOM update after expanding
+    setTimeout(() => {
+      // Scroll to the element
+      targetLine!.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+      // Flash highlight effect
+      targetLine!.classList.add('path-highlight')
+      setTimeout(() => {
+        targetLine?.classList.remove('path-highlight')
+      }, 2500)
+    }, 100)
+  } else {
+    console.log('[Navigate] Path not found. Available paths:',
+      Array.from(allLines).slice(0, 10).map(l => (l as HTMLElement).dataset.path))
+  }
 }
 
 // ============ MODE TOGGLE ============

@@ -4,8 +4,11 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JSON Parser - Beautiful JSON Viewer & Editor</title>
-    <meta name="description" content="A powerful JSON parser with tree view, syntax highlighting, diff mode, and private AI assistant that runs entirely offline." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <title>JSON Parser - Offline Viewer, Diff, and Local AI</title>
+    <meta name="description" content="Parse, format, and compare JSON with a fast tree view, keyboard shortcuts, and a private on-device AI helper." />
   </head>
   <body>
     <div id="landing">
@@ -30,15 +33,15 @@
       <section class="hero">
         <div class="hero-content">
           <h1 class="hero-title">
-            Beautiful <span class="gradient-text">JSON</span> Parser
+            The <span class="gradient-text">JSON</span> workbench for real data
           </h1>
           <p class="hero-subtitle">
-            A powerful JSON viewer and editor with tree visualization, syntax highlighting, diff mode, and a private AI assistant that runs entirely on your device.
+            Format, validate, diff, and search massive payloads in seconds. The AI assistant runs locally, so your data never leaves the browser.
           </p>
           <div class="hero-buttons">
             <a href="./" class="btn btn-primary">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              Launch Parser
+              Open Parser
             </a>
             <a href="https://github.com/cesarferreira/json" target="_blank" class="btn btn-secondary">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
@@ -54,7 +57,7 @@
 
       <!-- Features Section -->
       <section class="features">
-        <h2 class="section-title">Everything you need</h2>
+        <h2 class="section-title">Built for daily JSON work</h2>
         <div class="features-grid">
           <div class="feature-card">
             <div class="feature-icon">
@@ -63,7 +66,7 @@
               </svg>
             </div>
             <h3>Tree View</h3>
-            <p>Visualize nested JSON structures with an expandable tree. Click to expand, collapse, or copy any node.</p>
+            <p>Open huge payloads without getting lost. Expand, collapse, and copy any node in place.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
@@ -72,7 +75,7 @@
               </svg>
             </div>
             <h3>Diff Mode</h3>
-            <p>Compare two JSON files side by side. Instantly see what's added, removed, or changed.</p>
+            <p>Compare responses, configs, or snapshots side by side. See additions and changes instantly.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
@@ -81,7 +84,7 @@
               </svg>
             </div>
             <h3>Search</h3>
-            <p>Find keys and values instantly. Navigate through results with keyboard shortcuts.</p>
+            <p>Jump to any key or value with instant search and keyboard navigation.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
@@ -90,7 +93,7 @@
               </svg>
             </div>
             <h3>Syntax Highlighting</h3>
-            <p>Color-coded syntax for strings, numbers, booleans, and keys. Easy to read at a glance.</p>
+            <p>Readable colors that keep types obvious at a glance, even in dense objects.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
@@ -99,7 +102,7 @@
               </svg>
             </div>
             <h3>Copy & Share</h3>
-            <p>Copy formatted JSON, download files, or share via URL with compressed data.</p>
+            <p>Export formatted JSON, download files, or share via compressed URLs.</p>
           </div>
           <div class="feature-card highlight">
             <div class="feature-icon">
@@ -109,7 +112,7 @@
               </svg>
             </div>
             <h3>Private AI</h3>
-            <p>Chat with Gemini Nano about your JSON. Runs 100% offline in Chrome - your data never leaves your device.</p>
+            <p>Ask Gemini Nano to summarize or explain fields. Runs 100% offline in Chrome.</p>
             <span class="feature-badge">Offline</span>
           </div>
         </div>
@@ -119,10 +122,10 @@
       <section class="ai-section">
         <div class="ai-content">
           <span class="ai-badge">Private & Offline</span>
-          <h2>AI that respects your privacy</h2>
+          <h2>Ask the data, keep it local</h2>
           <p>
             Ask questions about your JSON data using Chrome's built-in Gemini Nano model.
-            No API keys, no cloud services, no data collection. Everything runs locally on your device.
+            No API keys, no cloud services, no tracking. Everything runs locally on your device.
           </p>
           <ul class="ai-features">
             <li>
@@ -135,7 +138,7 @@
             </li>
             <li>
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-              Ask anything about your JSON
+              Summaries, explanations, and quick counts
             </li>
             <li>
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
@@ -160,8 +163,8 @@
 
       <!-- Keyboard Shortcuts -->
       <section class="shortcuts-section">
-        <h2 class="section-title">Keyboard-first design</h2>
-        <p class="section-subtitle">Navigate and manipulate JSON without touching your mouse</p>
+        <h2 class="section-title">Keyboard-first workflow</h2>
+        <p class="section-subtitle">Format, diff, and navigate JSON without leaving the keys</p>
         <div class="shortcuts-grid">
           <div class="shortcut"><kbd>f</kbd><span>Format</span></div>
           <div class="shortcut"><kbd>m</kbd><span>Minify</span></div>
@@ -178,8 +181,8 @@
 
       <!-- CTA Section -->
       <section class="cta-section">
-        <h2>Ready to parse?</h2>
-        <p>No sign up, no installation. Just paste your JSON and go.</p>
+        <h2>Parse faster, share less</h2>
+        <p>No sign up, no installation. Paste your JSON and get to work.</p>
         <a href="./" class="btn btn-primary btn-large">
           Open JSON Parser
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
