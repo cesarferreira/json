@@ -1069,13 +1069,16 @@ function toggleAIPanel() {
   const isHidden = aiPanel.classList.contains('hidden')
 
   if (isHidden) {
-    // Show panel, hide FAB
+    // Show panel, fade out FAB
     aiPanel.classList.remove('hidden')
-    // Small delay to trigger CSS transition
+    aiFab.classList.add('fading')
     requestAnimationFrame(() => {
       aiPanel.classList.add('visible')
     })
-    aiFab.classList.add('hidden')
+    setTimeout(() => {
+      aiFab.classList.add('hidden')
+      aiFab.classList.remove('fading')
+    }, 200)
 
     if (!aiAvailable) {
       aiMessages.classList.add('hidden')
@@ -1090,12 +1093,20 @@ function toggleAIPanel() {
       aiInput.focus()
     }
   } else {
-    // Hide panel, show FAB
+    // Hide panel, fade in FAB
     aiPanel.classList.remove('visible')
+    // First add fading to ensure FAB starts invisible
+    aiFab.classList.add('fading')
+    aiFab.classList.remove('hidden')
+    // Use double RAF to ensure the browser has registered the initial state
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        aiFab.classList.remove('fading')
+      })
+    })
     setTimeout(() => {
       aiPanel.classList.add('hidden')
-      aiFab.classList.remove('hidden')
-    }, 300) // Match transition duration
+    }, 300)
   }
 }
 
