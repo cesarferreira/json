@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON Parser - Beautiful JSON Viewer & Editor</title>
+    <meta name="description" content="A powerful JSON parser with tree view, syntax highlighting, diff mode, and private AI assistant that runs entirely offline." />
+  </head>
+  <body>
+    <div id="landing">
+      <!-- Navigation -->
+      <nav class="nav">
+        <div class="nav-brand">
+          <svg viewBox="0 2 24 20" width="28" height="28" fill="none">
+            <path d="M9 5H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2 M15 5h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>JSON Parser</span>
+        </div>
+        <div class="nav-links">
+          <a href="https://github.com/cesarferreira/json" target="_blank" rel="noopener" class="nav-link">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </a>
+          <a href="./" class="nav-cta">Open App</a>
+        </div>
+      </nav>
+
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="hero-content">
+          <h1 class="hero-title">
+            Beautiful <span class="gradient-text">JSON</span> Parser
+          </h1>
+          <p class="hero-subtitle">
+            A powerful JSON viewer and editor with tree visualization, syntax highlighting, diff mode, and a private AI assistant that runs entirely on your device.
+          </p>
+          <div class="hero-buttons">
+            <a href="./" class="btn btn-primary">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              Launch Parser
+            </a>
+            <a href="https://github.com/cesarferreira/json" target="_blank" class="btn btn-secondary">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              View Source
+            </a>
+          </div>
+        </div>
+        <div class="hero-image">
+          <div class="hero-image-glow"></div>
+          <img src="/ai-chat-screenshot.png" alt="JSON Parser with AI Chat" />
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section class="features">
+        <h2 class="section-title">Everything you need</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <h3>Tree View</h3>
+            <p>Visualize nested JSON structures with an expandable tree. Click to expand, collapse, or copy any node.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 9l6 6M15 9l-6 6M4 4h16v16H4z"/>
+              </svg>
+            </div>
+            <h3>Diff Mode</h3>
+            <p>Compare two JSON files side by side. Instantly see what's added, removed, or changed.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+            </div>
+            <h3>Search</h3>
+            <p>Find keys and values instantly. Navigate through results with keyboard shortcuts.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+            </div>
+            <h3>Syntax Highlighting</h3>
+            <p>Color-coded syntax for strings, numbers, booleans, and keys. Easy to read at a glance.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+              </svg>
+            </div>
+            <h3>Copy & Share</h3>
+            <p>Copy formatted JSON, download files, or share via URL with compressed data.</p>
+          </div>
+          <div class="feature-card highlight">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <h3>Private AI</h3>
+            <p>Chat with Gemini Nano about your JSON. Runs 100% offline in Chrome - your data never leaves your device.</p>
+            <span class="feature-badge">Offline</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI Section -->
+      <section class="ai-section">
+        <div class="ai-content">
+          <span class="ai-badge">Private & Offline</span>
+          <h2>AI that respects your privacy</h2>
+          <p>
+            Ask questions about your JSON data using Chrome's built-in Gemini Nano model.
+            No API keys, no cloud services, no data collection. Everything runs locally on your device.
+          </p>
+          <ul class="ai-features">
+            <li>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              100% offline processing
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              No data sent to servers
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              Ask anything about your JSON
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              Powered by Gemini Nano
+            </li>
+          </ul>
+        </div>
+        <div class="ai-demo">
+          <div class="chat-preview">
+            <div class="chat-header">
+              <span>Private AI <span class="offline-badge">offline</span></span>
+            </div>
+            <div class="chat-messages">
+              <div class="chat-msg user">how many features?</div>
+              <div class="chat-msg ai">6 features in the array.</div>
+              <div class="chat-msg user">what's the theme?</div>
+              <div class="chat-msg ai">Dark theme, set at <code>settings.theme</code></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Keyboard Shortcuts -->
+      <section class="shortcuts-section">
+        <h2 class="section-title">Keyboard-first design</h2>
+        <p class="section-subtitle">Navigate and manipulate JSON without touching your mouse</p>
+        <div class="shortcuts-grid">
+          <div class="shortcut"><kbd>f</kbd><span>Format</span></div>
+          <div class="shortcut"><kbd>m</kbd><span>Minify</span></div>
+          <div class="shortcut"><kbd>c</kbd><span>Copy</span></div>
+          <div class="shortcut"><kbd>s</kbd><span>Save</span></div>
+          <div class="shortcut"><kbd>/</kbd><span>Search</span></div>
+          <div class="shortcut"><kbd>e</kbd><span>Expand All</span></div>
+          <div class="shortcut"><kbd>w</kbd><span>Collapse All</span></div>
+          <div class="shortcut"><kbd>d</kbd><span>Diff Mode</span></div>
+          <div class="shortcut"><kbd>t</kbd><span>Toggle Theme</span></div>
+          <div class="shortcut"><kbd>a</kbd><span>AI Chat</span></div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="cta-section">
+        <h2>Ready to parse?</h2>
+        <p>No sign up, no installation. Just paste your JSON and go.</p>
+        <a href="./" class="btn btn-primary btn-large">
+          Open JSON Parser
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>Built by <a href="https://github.com/cesarferreira" target="_blank">Cesar Ferreira</a></p>
+      </footer>
+    </div>
+    <script type="module" src="/src/landing.ts"></script>
+  </body>
+</html>
