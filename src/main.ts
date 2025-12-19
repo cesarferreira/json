@@ -1361,8 +1361,14 @@ function collapseAll() {
 function navigateToJsonPath(pathStr: string) {
   console.log('[Navigate] Looking for path:', pathStr)
 
+  // Handle ".length" - navigate to the array itself
+  let cleanPath = pathStr.trim()
+  if (cleanPath.endsWith('.length')) {
+    cleanPath = cleanPath.replace('.length', '')
+  }
+
   // Convert simple path like "stats.users" to full path "$.stats.users"
-  let fullPath = pathStr.trim()
+  let fullPath = cleanPath
   if (!fullPath.startsWith('$')) {
     fullPath = '$.' + fullPath
   }
