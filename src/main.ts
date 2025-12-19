@@ -932,10 +932,10 @@ function clearInput() {
 // ============ KEYBOARD SHORTCUTS ============
 
 function handleKeyboardShortcuts(e: KeyboardEvent) {
-  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
-  const modifier = isMac ? e.metaKey : e.ctrlKey
+  const isInInput = document.activeElement?.tagName === 'INPUT' ||
+                    document.activeElement?.tagName === 'TEXTAREA'
 
-  // Escape - close modals or clear search
+  // Escape - close modals or clear search (works everywhere)
   if (e.key === 'Escape') {
     if (!urlModal.classList.contains('hidden')) {
       closeUrlModal()
@@ -947,90 +947,79 @@ function handleKeyboardShortcuts(e: KeyboardEvent) {
     }
     if (searchInput.value) {
       clearSearch()
+      searchInput.blur()
+      return
+    }
+    // Blur any focused input
+    if (isInInput) {
+      (document.activeElement as HTMLElement).blur()
       return
     }
   }
 
-  // ? - show shortcuts (when not in input)
-  if (e.key === '?' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+  // Search navigation when in search input
+  if (document.activeElement === searchInput && e.key === 'Enter') {
     e.preventDefault()
-    shortcutsModal.classList.remove('hidden')
-    return
-  }
-
-  // Search navigation
-  if (document.activeElement === searchInput) {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      if (e.shiftKey) {
-        prevMatch()
-      } else {
-        nextMatch()
-      }
-      return
-    }
-  }
-
-  if (!modifier) return
-
-  // Ctrl/Cmd + / - focus search
-  if (e.key === '/') {
-    e.preventDefault()
-    searchInput.focus()
-    return
-  }
-
-  // Ctrl/Cmd + T - toggle theme
-  if (e.key === 't' || e.key === 'T') {
-    e.preventDefault()
-    toggleTheme()
-    return
-  }
-
-  // Ctrl/Cmd + D - toggle diff mode
-  if (e.key === 'd' || e.key === 'D') {
-    e.preventDefault()
-    if (editorView.classList.contains('hidden')) {
-      setEditorMode()
+    if (e.shiftKey) {
+      prevMatch()
     } else {
-      setDiffMode()
+      nextMatch()
     }
     return
   }
 
-  // Ctrl/Cmd + E - expand all
-  if ((e.key === 'e' || e.key === 'E') && !e.shiftKey) {
-    e.preventDefault()
-    expandAll()
-    return
-  }
+  // All shortcuts below only work when NOT in an input field
+  if (isInInput) return
 
-  // Ctrl/Cmd + Shift + E - collapse all
-  if ((e.key === 'e' || e.key === 'E') && e.shiftKey) {
-    e.preventDefault()
-    collapseAll()
-    return
-  }
-
-  // Ctrl/Cmd + Shift + F - format
-  if ((e.key === 'f' || e.key === 'F') && e.shiftKey) {
-    e.preventDefault()
-    formatJson()
-    return
-  }
-
-  // Ctrl/Cmd + Shift + M - minify
-  if ((e.key === 'm' || e.key === 'M') && e.shiftKey) {
-    e.preventDefault()
-    minifyJson()
-    return
-  }
-
-  // Ctrl/Cmd + Shift + C - copy
-  if ((e.key === 'c' || e.key === 'C') && e.shiftKey) {
-    e.preventDefault()
-    copyToClipboard(jsonInput.value)
-    return
+  switch (e.key) {
+    case '?':
+      e.preventDefault()
+      shortcutsModal.classList.remove('hidden')
+      break
+    case '/':
+      e.preventDefault()
+      searchInput.focus()
+      break
+    case 'f':
+      e.preventDefault()
+      formatJson()
+      break
+    case 'm':
+      e.preventDefault()
+      minifyJson()
+      break
+    case 'c':
+      e.preventDefault()
+      copyToClipboard(jsonInput.value)
+      break
+    case 's':
+      e.preventDefault()
+      downloadJson()
+      break
+    case 't':
+      e.preventDefault()
+      toggleTheme()
+      break
+    case 'd':
+      e.preventDefault()
+      if (editorView.classList.contains('hidden')) {
+        setEditorMode()
+      } else {
+        setDiffMode()
+      }
+      break
+    case 'e':
+      e.preventDefault()
+      expandAll()
+      break
+    case 'w':
+      e.preventDefault()
+      collapseAll()
+      break
+    case 'x':
+      e.preventDefault()
+      clearInput()
+      break
   }
 }
 

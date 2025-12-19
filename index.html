@@ -29,28 +29,28 @@
           <div class="toolbar">
             <!-- Format Group -->
             <div class="btn-group">
-              <button id="format-btn" title="Format JSON (Ctrl+Shift+F)">✨ Format</button>
-              <button id="minify-btn" title="Minify JSON (Ctrl+Shift+M)">📦 Minify</button>
+              <button id="format-btn" title="Format JSON (f)">✨ Format</button>
+              <button id="minify-btn" title="Minify JSON (m)">📦 Minify</button>
             </div>
             <div class="toolbar-divider"></div>
             <!-- Import/Export Group -->
             <div class="btn-group">
               <button id="url-btn" title="Import from URL">🔗 Import</button>
-              <button id="copy-btn" title="Copy JSON (Ctrl+Shift+C)">📋 Copy</button>
-              <button id="download-btn" title="Download JSON">💾 Save</button>
+              <button id="copy-btn" title="Copy JSON (c)">📋 Copy</button>
+              <button id="download-btn" title="Download JSON (s)">💾 Save</button>
               <button id="share-btn" title="Share via URL">🔗 Share</button>
             </div>
             <div class="toolbar-divider"></div>
             <!-- Tree Controls -->
             <div class="btn-group">
-              <button id="expand-all-btn" title="Expand All (Ctrl+E)">➕ Expand</button>
-              <button id="collapse-all-btn" title="Collapse All (Ctrl+Shift+E)">➖ Collapse</button>
+              <button id="expand-all-btn" title="Expand All (e)">➕ Expand</button>
+              <button id="collapse-all-btn" title="Collapse All (w)">➖ Collapse</button>
             </div>
             <div class="toolbar-divider"></div>
             <!-- Actions -->
             <div class="btn-group">
-              <button id="clear-btn" title="Clear" class="btn-danger">🗑️ Clear</button>
-              <button id="theme-btn" title="Toggle Theme (Ctrl+T)">
+              <button id="clear-btn" title="Clear (x)" class="btn-danger">🗑️ Clear</button>
+              <button id="theme-btn" title="Toggle Theme (t)">
                 <span class="theme-icon">🌙</span>
               </button>
             </div>
@@ -149,15 +149,18 @@
             <button class="modal-close" id="shortcuts-modal-close">&times;</button>
           </div>
           <div class="modal-body shortcuts-body">
-            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd><span>Format JSON</span></div>
-            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd><span>Minify JSON</span></div>
-            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd><span>Copy JSON</span></div>
-            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>E</kbd><span>Expand All</span></div>
-            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd><span>Collapse All</span></div>
-            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>/</kbd><span>Focus Search</span></div>
-            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>T</kbd><span>Toggle Theme</span></div>
-            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>D</kbd><span>Toggle Diff Mode</span></div>
-            <div class="shortcut-row"><kbd>Escape</kbd><span>Clear Search / Close Modal</span></div>
+            <p class="shortcuts-note">Press keys when not typing in editor</p>
+            <div class="shortcut-row"><kbd>f</kbd><span>Format JSON</span></div>
+            <div class="shortcut-row"><kbd>m</kbd><span>Minify JSON</span></div>
+            <div class="shortcut-row"><kbd>c</kbd><span>Copy JSON</span></div>
+            <div class="shortcut-row"><kbd>s</kbd><span>Save/Download</span></div>
+            <div class="shortcut-row"><kbd>e</kbd><span>Expand All</span></div>
+            <div class="shortcut-row"><kbd>w</kbd><span>Collapse All</span></div>
+            <div class="shortcut-row"><kbd>/</kbd><span>Search</span></div>
+            <div class="shortcut-row"><kbd>t</kbd><span>Toggle Theme</span></div>
+            <div class="shortcut-row"><kbd>d</kbd><span>Toggle Diff Mode</span></div>
+            <div class="shortcut-row"><kbd>x</kbd><span>Clear</span></div>
+            <div class="shortcut-row"><kbd>Esc</kbd><span>Close / Unfocus</span></div>
             <div class="shortcut-row"><kbd>?</kbd><span>Show Shortcuts</span></div>
           </div>
         </div>

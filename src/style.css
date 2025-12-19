@@ -873,6 +873,14 @@ html, body {
   gap: 8px;
 }
 
+.shortcuts-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
 .shortcut-row {
   display: flex;
   align-items: center;
