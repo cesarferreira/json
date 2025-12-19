@@ -2,29 +2,84 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/json/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JSON Parser</title>
   </head>
   <body>
     <div id="app">
       <header class="header">
-        <h1>JSON Parser</h1>
-        <div class="toolbar">
-          <button id="format-btn" title="Format JSON">Format</button>
-          <button id="minify-btn" title="Minify JSON">Minify</button>
-          <button id="clear-btn" title="Clear">Clear</button>
-          <button id="expand-all-btn" title="Expand All">Expand All</button>
-          <button id="collapse-all-btn" title="Collapse All">Collapse All</button>
+        <div class="header-left">
+          <h1>JSON Parser</h1>
+          <div class="mode-toggle">
+            <button id="editor-mode-btn" class="mode-btn active" title="Editor Mode">Editor</button>
+            <button id="diff-mode-btn" class="mode-btn" title="Diff Mode">Diff</button>
+          </div>
+        </div>
+        <div class="header-center">
+          <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search keys or values... (Ctrl+/)" />
+            <span id="search-results" class="search-results"></span>
+            <button id="search-prev" class="search-nav" title="Previous (Shift+Enter)">&#9650;</button>
+            <button id="search-next" class="search-nav" title="Next (Enter)">&#9660;</button>
+            <button id="search-clear" class="search-clear" title="Clear search">&times;</button>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="toolbar">
+            <button id="format-btn" title="Format JSON (Ctrl+Shift+F)">Format</button>
+            <button id="minify-btn" title="Minify JSON (Ctrl+Shift+M)">Minify</button>
+            <button id="copy-btn" title="Copy JSON (Ctrl+Shift+C)">Copy</button>
+            <button id="download-btn" title="Download JSON">Download</button>
+            <button id="url-btn" title="Import from URL">URL</button>
+            <button id="share-btn" title="Share via URL">Share</button>
+            <button id="clear-btn" title="Clear">Clear</button>
+          </div>
+          <div class="toolbar">
+            <button id="expand-all-btn" title="Expand All (Ctrl+E)">Expand All</button>
+            <button id="collapse-all-btn" title="Collapse All (Ctrl+Shift+E)">Collapse All</button>
+            <button id="theme-btn" title="Toggle Theme (Ctrl+T)">
+              <span class="theme-icon">🌙</span>
+            </button>
+          </div>
         </div>
       </header>
-      <main class="main">
+
+      <!-- URL Import Modal -->
+      <div id="url-modal" class="modal hidden">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Import JSON from URL</h3>
+            <button class="modal-close" id="url-modal-close">&times;</button>
+          </div>
+          <div class="modal-body">
+            <input type="url" id="url-input" placeholder="https://api.example.com/data.json" />
+            <button id="url-fetch-btn">Fetch</button>
+          </div>
+          <div id="url-error" class="modal-error hidden"></div>
+        </div>
+      </div>
+
+      <!-- JSONPath Display -->
+      <div id="path-display" class="path-display hidden">
+        <span id="path-text"></span>
+        <button id="path-copy" title="Copy path">Copy</button>
+      </div>
+
+      <!-- Editor Mode -->
+      <main id="editor-view" class="main">
         <div class="pane left-pane">
           <div class="pane-header">
             <span>Input JSON</span>
             <span id="status" class="status"></span>
           </div>
-          <textarea id="json-input" placeholder="Paste your JSON here..." spellcheck="false"></textarea>
+          <div class="editor-container">
+            <div id="line-numbers" class="line-numbers"></div>
+            <div class="editor-wrapper">
+              <textarea id="json-input" placeholder="Paste your JSON here..." spellcheck="false"></textarea>
+              <pre id="syntax-highlight" class="syntax-highlight"></pre>
+            </div>
+          </div>
         </div>
         <div class="resizer" id="resizer"></div>
         <div class="pane right-pane">
@@ -35,6 +90,68 @@
           <div id="json-tree" class="json-tree"></div>
         </div>
       </main>
+
+      <!-- Diff Mode -->
+      <main id="diff-view" class="main hidden">
+        <div class="pane diff-pane">
+          <div class="pane-header">
+            <span>Original JSON</span>
+            <span id="diff-status-left" class="status"></span>
+          </div>
+          <div class="editor-container">
+            <div id="diff-line-numbers-left" class="line-numbers"></div>
+            <div class="editor-wrapper">
+              <textarea id="diff-input-left" placeholder="Paste original JSON here..." spellcheck="false"></textarea>
+              <pre id="diff-highlight-left" class="syntax-highlight"></pre>
+            </div>
+          </div>
+        </div>
+        <div class="pane diff-pane">
+          <div class="pane-header">
+            <span>Modified JSON</span>
+            <span id="diff-status-right" class="status"></span>
+          </div>
+          <div class="editor-container">
+            <div id="diff-line-numbers-right" class="line-numbers"></div>
+            <div class="editor-wrapper">
+              <textarea id="diff-input-right" placeholder="Paste modified JSON here..." spellcheck="false"></textarea>
+              <pre id="diff-highlight-right" class="syntax-highlight"></pre>
+            </div>
+          </div>
+        </div>
+        <div class="pane diff-result-pane">
+          <div class="pane-header">
+            <span>Differences</span>
+            <span id="diff-stats" class="stats"></span>
+          </div>
+          <div id="diff-result" class="diff-result"></div>
+        </div>
+      </main>
+
+      <!-- Keyboard Shortcuts Modal -->
+      <div id="shortcuts-modal" class="modal hidden">
+        <div class="modal-content shortcuts-content">
+          <div class="modal-header">
+            <h3>Keyboard Shortcuts</h3>
+            <button class="modal-close" id="shortcuts-modal-close">&times;</button>
+          </div>
+          <div class="modal-body shortcuts-body">
+            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd><span>Format JSON</span></div>
+            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd><span>Minify JSON</span></div>
+            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd><span>Copy JSON</span></div>
+            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>E</kbd><span>Expand All</span></div>
+            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd><span>Collapse All</span></div>
+            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>/</kbd><span>Focus Search</span></div>
+            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>T</kbd><span>Toggle Theme</span></div>
+            <div class="shortcut-row"><kbd>Ctrl</kbd> + <kbd>D</kbd><span>Toggle Diff Mode</span></div>
+            <div class="shortcut-row"><kbd>Escape</kbd><span>Clear Search / Close Modal</span></div>
+            <div class="shortcut-row"><kbd>?</kbd><span>Show Shortcuts</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Notification -->
+      <div id="toast" class="toast hidden"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
