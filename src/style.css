@@ -120,6 +120,19 @@ html, body {
   white-space: nowrap;
 }
 
+.github-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: color 0.2s, transform 0.2s;
+}
+
+.github-link:hover {
+  color: var(--text-color);
+  transform: scale(1.1);
+}
+
 /* Mode Toggle */
 .mode-toggle {
   display: flex;

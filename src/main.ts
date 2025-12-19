@@ -1313,8 +1313,8 @@ function clearInput() {
 // ============ KEYBOARD SHORTCUTS ============
 
 function handleKeyboardShortcuts(e: KeyboardEvent) {
-  const isInInput = document.activeElement?.tagName === 'INPUT' ||
-                    document.activeElement?.tagName === 'TEXTAREA'
+  const activeEl = document.activeElement
+  const isInInput = activeEl?.tagName === 'INPUT' || activeEl?.tagName === 'TEXTAREA'
 
   // Escape - close modals or clear search (works everywhere)
   if (e.key === 'Escape') {
@@ -1337,13 +1337,13 @@ function handleKeyboardShortcuts(e: KeyboardEvent) {
     }
     // Blur any focused input
     if (isInInput) {
-      (document.activeElement as HTMLElement).blur()
+      (activeEl as HTMLElement).blur()
       return
     }
   }
 
   // Search navigation when in search input
-  if (document.activeElement === searchInput) {
+  if (activeEl === searchInput) {
     if (e.key === 'Enter' || e.key === 'ArrowDown') {
       e.preventDefault()
       nextMatch()
@@ -1354,6 +1354,8 @@ function handleKeyboardShortcuts(e: KeyboardEvent) {
       prevMatch()
       return
     }
+    // Don't process other shortcuts when in search
+    return
   }
 
   // All shortcuts below only work when NOT in an input field
@@ -1508,6 +1510,15 @@ helpBtn.addEventListener('click', () => shortcutsModal.classList.remove('hidden'
 // AI Panel
 aiBtn.addEventListener('click', toggleAIPanel)
 aiPanelClose.addEventListener('click', toggleAIPanel)
+
+// Click outside to close AI panel
+document.addEventListener('click', (e) => {
+  if (!aiPanel.classList.contains('visible')) return
+  const target = e.target as HTMLElement
+  if (!aiPanel.contains(target) && !aiFab.contains(target)) {
+    toggleAIPanel()
+  }
+})
 aiSend.addEventListener('click', sendAIMessage)
 aiInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {

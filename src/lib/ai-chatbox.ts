@@ -301,6 +301,15 @@ export class AIChatbox {
         this.close()
       }
     })
+
+    // Click outside to close
+    document.addEventListener('click', (e) => {
+      if (!this.isOpen) return
+      const target = e.target as HTMLElement
+      if (!this.panel?.contains(target) && !this.fab?.contains(target)) {
+        this.close()
+      }
+    })
   }
 
   private injectStyles(): void {
