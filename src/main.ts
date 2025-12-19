@@ -975,8 +975,18 @@ function toggleAIPanel() {
   }
 }
 
-function getChromeVersion(): number | null {
-  const match = navigator.userAgent.match(/Chrome\/(\d+)/)
+function getGoogleChromeVersion(): number | null {
+  const ua = navigator.userAgent
+
+  // Check for other Chromium browsers that report as Chrome but aren't
+  // Arc, Brave, Edge, Opera, Vivaldi, etc. all have their own identifiers
+  const isNotGoogleChrome = /Edg\/|OPR\/|Brave|Vivaldi|Arc\//i.test(ua)
+  if (isNotGoogleChrome) {
+    return null
+  }
+
+  // Check for actual Chrome
+  const match = ua.match(/Chrome\/(\d+)/)
   if (match && match[1]) {
     return parseInt(match[1], 10)
   }
@@ -1004,15 +1014,15 @@ async function checkAIFlags(): Promise<{ hasPromptApi: boolean; hasModel: boolea
 }
 
 async function updateAIRequirementsStatus() {
-  const chromeVersion = getChromeVersion()
-  const isChrome = chromeVersion !== null
+  const chromeVersion = getGoogleChromeVersion()
+  const isGoogleChrome = chromeVersion !== null
   const isChromeVersionOk = chromeVersion !== null && chromeVersion >= 127
 
   // Chrome version check
   const chromeReq = document.getElementById('ai-req-chrome')
   const chromeStatus = chromeReq?.querySelector('.ai-req-status')
   if (chromeStatus) {
-    if (!isChrome) {
+    if (!isGoogleChrome) {
       chromeStatus.className = 'ai-req-status cross'
     } else if (isChromeVersionOk) {
       chromeStatus.className = 'ai-req-status check'
