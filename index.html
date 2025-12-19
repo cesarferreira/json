@@ -5,7 +5,6 @@
     <link rel="icon" type="image/svg+xml" href="/json/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JSON Parser</title>
-    <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <div id="app">
@@ -30,29 +29,30 @@
           <div class="toolbar">
             <!-- Format Group -->
             <div class="btn-group">
-              <button id="format-btn" title="Format JSON (f)">✨ Format</button>
-              <button id="minify-btn" title="Minify JSON (m)">📦 Minify</button>
+              <button id="format-btn" title="Format JSON (f)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg> Format</button>
+              <button id="minify-btn" title="Minify JSON (m)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M4 6h16M4 18h16"/></svg> Minify</button>
             </div>
             <div class="toolbar-divider"></div>
             <!-- Import/Export Group -->
             <div class="btn-group">
-              <button id="url-btn" title="Import from URL">🔗 Import</button>
-              <button id="copy-btn" title="Copy JSON (c)">📋 Copy</button>
-              <button id="download-btn" title="Download JSON (s)">💾 Save</button>
-              <button id="share-btn" title="Share via URL">🔗 Share</button>
+              <button id="url-btn" title="Import from URL"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg> Import</button>
+              <button id="copy-btn" title="Copy JSON (c)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
+              <button id="download-btn" title="Download JSON (s)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/><path d="M19 21H5"/></svg> Save</button>
+              <button id="share-btn" title="Share via URL"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg> Share</button>
             </div>
             <div class="toolbar-divider"></div>
             <!-- Tree Controls -->
             <div class="btn-group">
-              <button id="expand-all-btn" title="Expand All (e)">➕ Expand</button>
-              <button id="collapse-all-btn" title="Collapse All (w)">➖ Collapse</button>
+              <button id="expand-all-btn" title="Expand All (e)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10l5 5 5-5"/><path d="M7 5l5 5 5-5"/></svg> Expand</button>
+              <button id="collapse-all-btn" title="Collapse All (w)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 14l5-5 5 5"/><path d="M7 19l5-5 5 5"/></svg> Collapse</button>
             </div>
             <div class="toolbar-divider"></div>
             <!-- Actions -->
             <div class="btn-group">
-              <button id="clear-btn" title="Clear (x)" class="btn-danger">🗑️ Clear</button>
+              <button id="clear-btn" title="Clear (x)" class="btn-danger"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Clear</button>
               <button id="theme-btn" title="Toggle Theme (t)">
-                <span class="theme-icon">🌙</span>
+                <svg class="icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                <svg class="icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
               </button>
             </div>
           </div>

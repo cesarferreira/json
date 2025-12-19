@@ -1,9 +1,5 @@
 import './style.css'
 
-declare const twemoji: {
-  parse(node: HTMLElement | string, options?: { folder: string; ext: string }): void
-}
-
 type JsonValue = string | number | boolean | null | JsonObject | JsonArray
 type JsonObject = { [key: string]: JsonValue }
 type JsonArray = JsonValue[]
@@ -808,30 +804,17 @@ function closeUrlModal() {
 
 // ============ THEME ============
 
-function parseEmojis() {
-  if (typeof twemoji !== 'undefined') {
-    twemoji.parse(document.body, { folder: 'svg', ext: '.svg' })
-  }
-}
-
 function toggleTheme() {
   const currentTheme = document.documentElement.getAttribute('data-theme')
   const newTheme = currentTheme === 'light' ? 'dark' : 'light'
 
   document.documentElement.setAttribute('data-theme', newTheme)
   localStorage.setItem(THEME_KEY, newTheme)
-
-  const themeIcon = themeBtn.querySelector('.theme-icon') as HTMLSpanElement
-  themeIcon.textContent = newTheme === 'light' ? '☀️' : '🌙'
-  parseEmojis()
 }
 
 function loadTheme() {
   const savedTheme = localStorage.getItem(THEME_KEY) || 'dark'
   document.documentElement.setAttribute('data-theme', savedTheme)
-
-  const themeIcon = themeBtn.querySelector('.theme-icon') as HTMLSpanElement
-  themeIcon.textContent = savedTheme === 'light' ? '☀️' : '🌙'
 }
 
 // ============ LOCAL STORAGE ============
@@ -1157,6 +1140,3 @@ if (!loadFromStorage()) {
 handleInput()
 showEmpty()
 handleInput()
-
-// Parse emojis with Twemoji
-parseEmojis()

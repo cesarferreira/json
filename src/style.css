@@ -274,21 +274,33 @@ html, body {
   color: var(--error-color);
 }
 
+/* Icon styling */
+.icon {
+  width: 14px;
+  height: 14px;
+  vertical-align: -2px;
+  stroke: currentColor;
+}
+
 #theme-btn {
   padding: 5px 8px;
 }
 
-.theme-icon {
-  font-size: 14px;
+/* Theme toggle icons - show/hide based on theme */
+.theme-icon-sun {
+  display: none;
 }
 
-/* Twemoji styling */
-img.emoji {
-  height: 1em;
-  width: 1em;
-  margin: 0 0.1em;
-  vertical-align: -0.1em;
+.theme-icon-moon {
   display: inline-block;
+}
+
+[data-theme="light"] .theme-icon-sun {
+  display: inline-block;
+}
+
+[data-theme="light"] .theme-icon-moon {
+  display: none;
 }
 
 /* Main Layout */
