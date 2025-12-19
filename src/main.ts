@@ -845,47 +845,116 @@ function loadFromStorage() {
 
 // ============ AI ASSISTANT ============
 
+type AIStatus = 'unavailable' | 'downloadable' | 'downloading' | 'available'
+let aiStatus: AIStatus = 'unavailable'
+
 async function checkAIAvailability(): Promise<boolean> {
   try {
-    // Check if the AI API is available
-    if (!('ai' in window)) {
+    // Check for the LanguageModel API (new namespace) or ai.languageModel (old namespace)
+    const languageModel = (window as any).LanguageModel || (window as any).ai?.languageModel
+    console.log('[AI] Checking availability, languageModel:', languageModel)
+    if (!languageModel) {
+      console.log('[AI] No languageModel found')
+      aiStatus = 'unavailable'
       return false
     }
 
-    const ai = (window as any).ai
-    if (!ai || !ai.languageModel) {
-      return false
-    }
-
-    const capabilities = await ai.languageModel.capabilities()
-    return capabilities.available === 'readily' || capabilities.available === 'after-download'
-  } catch {
+    const availability = await languageModel.availability({ expectedOutputLanguages: ['en'] })
+    console.log('[AI] Availability:', availability)
+    aiStatus = availability as AIStatus
+    updateAIButtonStatus()
+    return availability === 'available' || availability === 'downloadable' || availability === 'downloading'
+  } catch (e) {
+    console.error('[AI] Availability check error:', e)
+    aiStatus = 'unavailable'
     return false
   }
 }
 
-async function initAISession() {
+function updateAIButtonStatus() {
+  const btnText = aiBtn.querySelector('.ai-btn-text') || aiBtn
+  switch (aiStatus) {
+    case 'available':
+      aiBtn.title = 'Ask AI about JSON (a)'
+      if (btnText.textContent) btnText.textContent = 'AI'
+      aiBtn.classList.remove('ai-downloading')
+      break
+    case 'downloadable':
+      aiBtn.title = 'Click to download AI model'
+      if (btnText.textContent) btnText.textContent = 'AI ↓'
+      aiBtn.classList.remove('ai-downloading')
+      break
+    case 'downloading':
+      aiBtn.title = 'Downloading AI model...'
+      if (btnText.textContent) btnText.textContent = 'AI...'
+      aiBtn.classList.add('ai-downloading')
+      break
+    default:
+      aiBtn.title = 'AI not available'
+      if (btnText.textContent) btnText.textContent = 'AI'
+      aiBtn.classList.remove('ai-downloading')
+  }
+}
+
+async function initAISession(showProgress = false) {
   try {
-    const ai = (window as any).ai
-    aiSession = await ai.languageModel.create({
+    console.log('[AI] Creating session... (status:', aiStatus, ')')
+    const languageModel = (window as any).LanguageModel || (window as any).ai?.languageModel
+
+    if (aiStatus === 'downloadable' || aiStatus === 'downloading') {
+      aiStatus = 'downloading'
+      updateAIButtonStatus()
+      if (showProgress) {
+        addAIMessage('Downloading AI model... This may take a few minutes.', 'system')
+      }
+    }
+
+    const monitor = (m: any) => {
+      console.log('[AI] Download progress:', m.loaded, '/', m.total)
+      if (showProgress && m.total > 0) {
+        const pct = Math.round((m.loaded / m.total) * 100)
+        const progressEl = aiMessages.querySelector('.ai-download-progress')
+        if (progressEl) {
+          progressEl.textContent = `Downloading AI model... ${pct}%`
+        }
+      }
+    }
+
+    aiSession = await languageModel.create({
       systemPrompt: `You are a helpful assistant that answers questions about JSON data.
 The user will provide JSON data and ask questions about it.
 Keep your answers concise and focused on the JSON structure and content.
-When referring to specific values, mention their path in the JSON (e.g., "settings.theme").`
+When referring to specific values, mention their path in the JSON (e.g., "settings.theme").`,
+      expectedOutputLanguages: ['en'],
+      monitor
     })
+
+    console.log('[AI] Session created:', aiSession)
+    aiStatus = 'available'
+    updateAIButtonStatus()
+
+    // Remove download message if present
+    const downloadMsg = aiMessages.querySelector('.ai-download-progress')
+    if (downloadMsg) downloadMsg.remove()
+
     return true
   } catch (e) {
-    console.error('Failed to create AI session:', e)
+    console.error('[AI] Failed to create session:', e)
+    aiStatus = 'unavailable'
+    updateAIButtonStatus()
     return false
   }
 }
 
-function addAIMessage(content: string, type: 'user' | 'ai' | 'loading') {
+function addAIMessage(content: string, type: 'user' | 'ai' | 'loading' | 'system') {
   const messageDiv = document.createElement('div')
   messageDiv.className = `ai-message ai-message-${type}`
 
   if (type === 'loading') {
     messageDiv.textContent = 'Thinking'
+  } else if (type === 'system' && content.includes('Downloading')) {
+    messageDiv.classList.add('ai-download-progress')
+    messageDiv.textContent = content
   } else {
     messageDiv.textContent = content
   }
@@ -913,6 +982,8 @@ async function sendAIMessage() {
     return
   }
 
+  console.log('[AI] Sending message:', question)
+
   // Add user message
   addAIMessage(question, 'user')
   aiInput.value = ''
@@ -924,29 +995,49 @@ async function sendAIMessage() {
   try {
     // Initialize session if needed
     if (!aiSession) {
-      const success = await initAISession()
+      console.log('[AI] No session, initializing...')
+      const success = await initAISession(true)
       if (!success) {
         throw new Error('Failed to initialize AI')
       }
     }
 
+    console.log('[AI] Session methods:', Object.keys(aiSession), aiSession)
+
     // Build the prompt with JSON context
-    const prompt = `Here is the JSON data:
+    const promptText = `Here is the JSON data:
 \`\`\`json
 ${jsonData}
 \`\`\`
 
 User question: ${question}`
 
-    // Get AI response
-    const response = await aiSession.prompt(prompt)
+    console.log('[AI] Calling prompt with:', promptText.substring(0, 100) + '...')
+
+    // Get AI response - try different method names
+    let response: string
+    if (typeof aiSession.prompt === 'function') {
+      console.log('[AI] Using prompt() method')
+      response = await aiSession.prompt(promptText)
+    } else if (typeof aiSession.execute === 'function') {
+      console.log('[AI] Using execute() method')
+      response = await aiSession.execute(promptText)
+    } else if (typeof aiSession.generate === 'function') {
+      console.log('[AI] Using generate() method')
+      response = await aiSession.generate(promptText)
+    } else {
+      console.error('[AI] No known method found on session:', aiSession)
+      throw new Error('No prompt method available')
+    }
+
+    console.log('[AI] Response received:', response)
 
     removeLoadingMessage()
     addAIMessage(response, 'ai')
   } catch (e) {
     removeLoadingMessage()
     addAIMessage('Sorry, I encountered an error. Please try again.', 'ai')
-    console.error('AI error:', e)
+    console.error('[AI] Error:', e)
   } finally {
     aiSend.disabled = false
   }
@@ -995,16 +1086,17 @@ function getGoogleChromeVersion(): number | null {
 
 async function checkAIFlags(): Promise<{ hasPromptApi: boolean; hasModel: boolean }> {
   try {
-    const hasPromptApi = 'ai' in window && !!(window as any).ai?.languageModel
+    // Check for new namespace (LanguageModel) or old namespace (ai.languageModel)
+    const languageModel = (window as any).LanguageModel || (window as any).ai?.languageModel
+    const hasPromptApi = !!languageModel
     let hasModel = false
 
     if (hasPromptApi) {
-      const ai = (window as any).ai
-      const capabilities = await ai.languageModel.capabilities()
-      // Model is available if it's ready or can be downloaded
-      hasModel = capabilities.available === 'readily' ||
-                 capabilities.available === 'after-download' ||
-                 capabilities.available !== 'no'
+      const availability = await languageModel.availability({ expectedOutputLanguages: ['en'] })
+      // Model is available if it's ready, downloadable, or downloading
+      hasModel = availability === 'available' ||
+                 availability === 'downloadable' ||
+                 availability === 'downloading'
     }
 
     return { hasPromptApi, hasModel }
@@ -1016,7 +1108,7 @@ async function checkAIFlags(): Promise<{ hasPromptApi: boolean; hasModel: boolea
 async function updateAIRequirementsStatus() {
   const chromeVersion = getGoogleChromeVersion()
   const isGoogleChrome = chromeVersion !== null
-  const isChromeVersionOk = chromeVersion !== null && chromeVersion >= 127
+  const isChromeVersionOk = chromeVersion !== null && chromeVersion >= 138
 
   // Chrome version check
   const chromeReq = document.getElementById('ai-req-chrome')

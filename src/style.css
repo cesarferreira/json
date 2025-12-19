@@ -984,6 +984,13 @@ html, body {
   color: var(--accent-color);
 }
 
+.ai-req-note {
+  margin-top: 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
 kbd {
   display: inline-block;
   padding: 3px 6px;
@@ -1209,6 +1216,20 @@ kbd {
 #ai-send .icon {
   width: 16px;
   height: 16px;
+}
+
+/* AI button downloading state */
+.ai-downloading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.ai-download-progress {
+  color: var(--accent-color) !important;
 }
 
 /* Help Button */
