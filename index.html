@@ -27,20 +27,33 @@
         </div>
         <div class="header-right">
           <div class="toolbar">
-            <button id="format-btn" title="Format JSON (Ctrl+Shift+F)">Format</button>
-            <button id="minify-btn" title="Minify JSON (Ctrl+Shift+M)">Minify</button>
-            <button id="copy-btn" title="Copy JSON (Ctrl+Shift+C)">Copy</button>
-            <button id="download-btn" title="Download JSON">Download</button>
-            <button id="url-btn" title="Import from URL">URL</button>
-            <button id="share-btn" title="Share via URL">Share</button>
-            <button id="clear-btn" title="Clear">Clear</button>
-          </div>
-          <div class="toolbar">
-            <button id="expand-all-btn" title="Expand All (Ctrl+E)">Expand All</button>
-            <button id="collapse-all-btn" title="Collapse All (Ctrl+Shift+E)">Collapse All</button>
-            <button id="theme-btn" title="Toggle Theme (Ctrl+T)">
-              <span class="theme-icon">🌙</span>
-            </button>
+            <!-- Format Group -->
+            <div class="btn-group">
+              <button id="format-btn" title="Format JSON (Ctrl+Shift+F)">Format</button>
+              <button id="minify-btn" title="Minify JSON (Ctrl+Shift+M)">Minify</button>
+            </div>
+            <div class="toolbar-divider"></div>
+            <!-- Import/Export Group -->
+            <div class="btn-group">
+              <button id="url-btn" title="Import from URL">Import</button>
+              <button id="copy-btn" title="Copy JSON (Ctrl+Shift+C)">Copy</button>
+              <button id="download-btn" title="Download JSON">Download</button>
+              <button id="share-btn" title="Share via URL">Share</button>
+            </div>
+            <div class="toolbar-divider"></div>
+            <!-- Tree Controls -->
+            <div class="btn-group">
+              <button id="expand-all-btn" title="Expand All (Ctrl+E)">Expand</button>
+              <button id="collapse-all-btn" title="Collapse All (Ctrl+Shift+E)">Collapse</button>
+            </div>
+            <div class="toolbar-divider"></div>
+            <!-- Actions -->
+            <div class="btn-group">
+              <button id="clear-btn" title="Clear" class="btn-danger">Clear</button>
+              <button id="theme-btn" title="Toggle Theme (Ctrl+T)">
+                <span class="theme-icon">🌙</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
