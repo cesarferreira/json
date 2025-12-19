@@ -928,10 +928,11 @@ async function initAISession(showProgress = false) {
     }
 
     aiSession = await languageModel.create({
-      systemPrompt: `You are a helpful assistant that answers questions about JSON data.
-The user will provide JSON data and ask questions about it.
-Keep your answers concise and focused on the JSON structure and content.
-When referring to specific values, mention their path in the JSON (e.g., "settings.theme").`,
+      systemPrompt: `You're a friendly assistant helping users explore their JSON data.
+Answer naturally and conversationally - don't be robotic or repetitive.
+Be concise and direct. For simple questions, give simple answers (e.g., "6 features" or "1250 users").
+Only elaborate when the user asks for details or explanation.
+You can reference JSON paths like "settings.theme" when helpful.`,
       expectedOutputLanguages: ['en'],
       monitor
     })
@@ -1015,12 +1016,11 @@ async function sendAIMessage() {
     console.log('[AI] Session methods:', Object.keys(aiSession), aiSession)
 
     // Build the prompt with JSON context
-    const promptText = `Here is the JSON data:
-\`\`\`json
+    const promptText = `JSON:
 ${jsonData}
-\`\`\`
 
-User question: ${question}`
+Q: ${question}
+Answer briefly and directly:`
 
     console.log('[AI] Calling prompt with:', promptText.substring(0, 100) + '...')
 
