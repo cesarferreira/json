@@ -1048,9 +1048,8 @@ kbd {
 /* Floating AI Button */
 .ai-fab {
   position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 16px;
+  right: 16px;
   z-index: 200;
 }
 
@@ -1063,66 +1062,75 @@ kbd {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
+  width: calc(100% + 6px);
+  height: calc(100% + 6px);
+  border-radius: 16px;
+  background: linear-gradient(
+    90deg,
     #ff6b6b,
     #feca57,
     #48dbfb,
     #ff9ff3,
     #54a0ff,
     #5f27cd,
-    #ff6b6b
+    #ff6b6b,
+    #feca57,
+    #48dbfb
   );
-  animation: rotate-glow 3s linear infinite;
-  filter: blur(8px);
-  opacity: 0.8;
+  background-size: 300% 100%;
+  animation: glow-shift 4s ease-in-out infinite;
+  filter: blur(4px);
+  opacity: 0.5;
 }
 
-@keyframes rotate-glow {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+@keyframes glow-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .ai-fab-btn {
   position: relative;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
+  padding: 8px 14px;
+  border-radius: 14px;
   background: var(--header-bg);
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   transition: transform 0.2s, box-shadow 0.2s;
   z-index: 1;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--text-color);
+  white-space: nowrap;
+}
+
+.ai-fab-btn code {
+  background: var(--pane-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--accent-color);
 }
 
 .ai-fab-btn:hover {
-  transform: scale(1.1);
+  transform: scale(1.03);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .ai-fab-btn:active {
-  transform: scale(0.95);
-}
-
-.ai-fab-icon {
-  width: 28px;
-  height: 28px;
-  stroke: var(--text-color);
+  transform: scale(0.98);
 }
 
 /* AI Panel */
 .ai-panel {
   position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) scale(0);
-  transform-origin: bottom center;
+  bottom: 56px;
+  right: 16px;
+  transform: scale(0);
+  transform-origin: bottom right;
   width: 420px;
   max-height: 520px;
   background-color: var(--header-bg);
@@ -1138,12 +1146,12 @@ kbd {
 }
 
 .ai-panel.visible {
-  transform: translateX(-50%) scale(1);
+  transform: scale(1);
   opacity: 1;
 }
 
 .ai-panel.hidden {
-  transform: translateX(-50%) scale(0);
+  transform: scale(0);
   opacity: 0;
   pointer-events: none;
 }
@@ -1414,7 +1422,7 @@ kbd {
 .help-btn {
   position: fixed;
   bottom: 16px;
-  right: 16px;
+  left: 16px;
   width: 28px;
   height: 28px;
   border-radius: 50%;
