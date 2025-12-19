@@ -958,14 +958,17 @@ function handleKeyboardShortcuts(e: KeyboardEvent) {
   }
 
   // Search navigation when in search input
-  if (document.activeElement === searchInput && e.key === 'Enter') {
-    e.preventDefault()
-    if (e.shiftKey) {
-      prevMatch()
-    } else {
+  if (document.activeElement === searchInput) {
+    if (e.key === 'Enter' || e.key === 'ArrowDown') {
+      e.preventDefault()
       nextMatch()
+      return
     }
-    return
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      prevMatch()
+      return
+    }
   }
 
   // All shortcuts below only work when NOT in an input field
