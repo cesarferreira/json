@@ -1,4 +1,11 @@
 import './style.css'
+import { marked } from 'marked'
+
+// Configure marked for safe rendering
+marked.setOptions({
+  breaks: true,
+  gfm: true
+})
 
 type JsonValue = string | number | boolean | null | JsonObject | JsonArray
 type JsonObject = { [key: string]: JsonValue }
@@ -955,6 +962,9 @@ function addAIMessage(content: string, type: 'user' | 'ai' | 'loading' | 'system
   } else if (type === 'system' && content.includes('Downloading')) {
     messageDiv.classList.add('ai-download-progress')
     messageDiv.textContent = content
+  } else if (type === 'ai') {
+    // Render markdown for AI responses
+    messageDiv.innerHTML = marked.parse(content) as string
   } else {
     messageDiv.textContent = content
   }
