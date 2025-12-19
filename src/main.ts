@@ -879,27 +879,27 @@ async function checkAIAvailability(): Promise<boolean> {
 }
 
 function updateAIButtonStatus() {
-  const btnText = aiBtn.querySelector('.ai-btn-text') || aiBtn
+  const glow = document.querySelector('.ai-fab-glow') as HTMLElement
   switch (aiStatus) {
     case 'available':
       aiBtn.title = 'Ask AI about JSON (a)'
-      if (btnText.textContent) btnText.textContent = 'AI'
       aiBtn.classList.remove('ai-downloading')
+      if (glow) glow.style.opacity = '0.8'
       break
     case 'downloadable':
       aiBtn.title = 'Click to download AI model'
-      if (btnText.textContent) btnText.textContent = 'AI ↓'
       aiBtn.classList.remove('ai-downloading')
+      if (glow) glow.style.opacity = '0.5'
       break
     case 'downloading':
       aiBtn.title = 'Downloading AI model...'
-      if (btnText.textContent) btnText.textContent = 'AI...'
       aiBtn.classList.add('ai-downloading')
+      if (glow) glow.style.opacity = '1'
       break
     default:
       aiBtn.title = 'AI not available'
-      if (btnText.textContent) btnText.textContent = 'AI'
       aiBtn.classList.remove('ai-downloading')
+      if (glow) glow.style.opacity = '0.3'
   }
 }
 
@@ -1024,26 +1024,36 @@ User question: ${question}`
 
     console.log('[AI] Calling prompt with:', promptText.substring(0, 100) + '...')
 
-    // Get AI response - try different method names
-    let response: string
-    if (typeof aiSession.prompt === 'function') {
-      console.log('[AI] Using prompt() method')
-      response = await aiSession.prompt(promptText)
-    } else if (typeof aiSession.execute === 'function') {
-      console.log('[AI] Using execute() method')
-      response = await aiSession.execute(promptText)
-    } else if (typeof aiSession.generate === 'function') {
-      console.log('[AI] Using generate() method')
-      response = await aiSession.generate(promptText)
+    // Remove loading message before streaming starts
+    removeLoadingMessage()
+
+    // Create message element for streaming
+    const messageDiv = document.createElement('div')
+    messageDiv.className = 'ai-message ai-message-ai'
+    aiMessages.appendChild(messageDiv)
+
+    let fullResponse = ''
+
+    // Try streaming first, fall back to regular prompt
+    if (typeof aiSession.promptStreaming === 'function') {
+      console.log('[AI] Using promptStreaming() method')
+      const stream = aiSession.promptStreaming(promptText)
+
+      for await (const chunk of stream) {
+        fullResponse += chunk // Concatenate chunks
+        messageDiv.innerHTML = marked.parse(fullResponse) as string
+        aiMessages.scrollTop = aiMessages.scrollHeight
+      }
+    } else if (typeof aiSession.prompt === 'function') {
+      console.log('[AI] Using prompt() method (non-streaming)')
+      fullResponse = await aiSession.prompt(promptText)
+      messageDiv.innerHTML = marked.parse(fullResponse) as string
     } else {
       console.error('[AI] No known method found on session:', aiSession)
       throw new Error('No prompt method available')
     }
 
-    console.log('[AI] Response received:', response)
-
-    removeLoadingMessage()
-    addAIMessage(response, 'ai')
+    console.log('[AI] Response complete:', fullResponse.substring(0, 100) + '...')
   } catch (e) {
     removeLoadingMessage()
     addAIMessage('Sorry, I encountered an error. Please try again.', 'ai')
@@ -1053,11 +1063,19 @@ User question: ${question}`
   }
 }
 
+const aiFab = document.getElementById('ai-fab') as HTMLDivElement
+
 function toggleAIPanel() {
   const isHidden = aiPanel.classList.contains('hidden')
 
   if (isHidden) {
+    // Show panel, hide FAB
     aiPanel.classList.remove('hidden')
+    // Small delay to trigger CSS transition
+    requestAnimationFrame(() => {
+      aiPanel.classList.add('visible')
+    })
+    aiFab.classList.add('hidden')
 
     if (!aiAvailable) {
       aiMessages.classList.add('hidden')
@@ -1072,7 +1090,12 @@ function toggleAIPanel() {
       aiInput.focus()
     }
   } else {
-    aiPanel.classList.add('hidden')
+    // Hide panel, show FAB
+    aiPanel.classList.remove('visible')
+    setTimeout(() => {
+      aiPanel.classList.add('hidden')
+      aiFab.classList.remove('hidden')
+    }, 300) // Match transition duration
   }
 }
 
@@ -1295,8 +1318,8 @@ function handleKeyboardShortcuts(e: KeyboardEvent) {
 
   // Escape - close modals or clear search (works everywhere)
   if (e.key === 'Escape') {
-    if (!aiPanel.classList.contains('hidden')) {
-      aiPanel.classList.add('hidden')
+    if (aiPanel.classList.contains('visible')) {
+      toggleAIPanel()
       return
     }
     if (!urlModal.classList.contains('hidden')) {
@@ -1484,7 +1507,7 @@ helpBtn.addEventListener('click', () => shortcutsModal.classList.remove('hidden'
 
 // AI Panel
 aiBtn.addEventListener('click', toggleAIPanel)
-aiPanelClose.addEventListener('click', () => aiPanel.classList.add('hidden'))
+aiPanelClose.addEventListener('click', toggleAIPanel)
 aiSend.addEventListener('click', sendAIMessage)
 aiInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
