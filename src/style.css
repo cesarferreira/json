@@ -864,7 +864,7 @@ kbd {
 /* Toast */
 .toast {
   position: fixed;
-  bottom: 20px;
+  bottom: 76px;
   right: 20px;
   padding: 12px 20px;
   background-color: var(--header-bg);
@@ -889,6 +889,37 @@ kbd {
 
 .toast.error {
   border-left: 3px solid var(--error-color);
+}
+
+/* Help Button */
+.help-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.help-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.help-btn:active {
+  transform: scale(0.95);
 }
 
 .hidden {

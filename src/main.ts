@@ -93,6 +93,7 @@ const pathCopy = document.getElementById('path-copy') as HTMLButtonElement
 const resizer = document.getElementById('resizer') as HTMLDivElement
 const leftPane = document.querySelector('.left-pane') as HTMLDivElement
 const toast = document.getElementById('toast') as HTMLDivElement
+const helpBtn = document.getElementById('help-btn') as HTMLButtonElement
 
 // State
 let searchMatches: HTMLElement[] = []
@@ -1119,6 +1120,9 @@ shortcutsModalClose.addEventListener('click', () => shortcutsModal.classList.add
 shortcutsModal.addEventListener('click', (e) => {
   if (e.target === shortcutsModal) shortcutsModal.classList.add('hidden')
 })
+
+// Help Button
+helpBtn.addEventListener('click', () => shortcutsModal.classList.remove('hidden'))
 
 // Keyboard shortcuts
 document.addEventListener('keydown', handleKeyboardShortcuts)
