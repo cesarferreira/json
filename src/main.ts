@@ -83,11 +83,21 @@ const urlFetchBtn = document.getElementById('url-fetch-btn') as HTMLButtonElemen
 const urlError = document.getElementById('url-error') as HTMLDivElement
 const shortcutsModal = document.getElementById('shortcuts-modal') as HTMLDivElement
 const shortcutsModalClose = document.getElementById('shortcuts-modal-close') as HTMLButtonElement
+const aiRequirements = document.getElementById('ai-requirements') as HTMLDivElement
 
 // DOM Elements - Path Display
 const pathDisplay = document.getElementById('path-display') as HTMLDivElement
 const pathText = document.getElementById('path-text') as HTMLSpanElement
 const pathCopy = document.getElementById('path-copy') as HTMLButtonElement
+
+// DOM Elements - AI
+const aiBtn = document.getElementById('ai-btn') as HTMLButtonElement
+const aiPanel = document.getElementById('ai-panel') as HTMLDivElement
+const aiPanelClose = document.getElementById('ai-panel-close') as HTMLButtonElement
+const aiMessages = document.getElementById('ai-messages') as HTMLDivElement
+const aiUnavailable = document.getElementById('ai-unavailable') as HTMLDivElement
+const aiInput = document.getElementById('ai-input') as HTMLInputElement
+const aiSend = document.getElementById('ai-send') as HTMLButtonElement
 
 // DOM Elements - Other
 const resizer = document.getElementById('resizer') as HTMLDivElement
@@ -100,6 +110,8 @@ let searchMatches: HTMLElement[] = []
 let currentMatchIndex = -1
 let currentPath = ''
 let pathTimeout: number | null = null
+let aiSession: any = null
+let aiAvailable = false
 
 // ============ UTILITY FUNCTIONS ============
 
@@ -262,7 +274,6 @@ function updateStats(data: JsonValue | undefined) {
   if (stats.strings > 0) parts.push(`${stats.strings} str`)
   if (stats.numbers > 0) parts.push(`${stats.numbers} num`)
   if (stats.booleans > 0) parts.push(`${stats.booleans} bool`)
-  if (stats.nulls > 0) parts.push(`${stats.nulls} null`)
   statsEl.textContent = parts.join(' | ')
 }
 
@@ -832,6 +843,247 @@ function loadFromStorage() {
   return false
 }
 
+// ============ AI ASSISTANT ============
+
+async function checkAIAvailability(): Promise<boolean> {
+  try {
+    // Check if the AI API is available
+    if (!('ai' in window)) {
+      return false
+    }
+
+    const ai = (window as any).ai
+    if (!ai || !ai.languageModel) {
+      return false
+    }
+
+    const capabilities = await ai.languageModel.capabilities()
+    return capabilities.available === 'readily' || capabilities.available === 'after-download'
+  } catch {
+    return false
+  }
+}
+
+async function initAISession() {
+  try {
+    const ai = (window as any).ai
+    aiSession = await ai.languageModel.create({
+      systemPrompt: `You are a helpful assistant that answers questions about JSON data.
+The user will provide JSON data and ask questions about it.
+Keep your answers concise and focused on the JSON structure and content.
+When referring to specific values, mention their path in the JSON (e.g., "settings.theme").`
+    })
+    return true
+  } catch (e) {
+    console.error('Failed to create AI session:', e)
+    return false
+  }
+}
+
+function addAIMessage(content: string, type: 'user' | 'ai' | 'loading') {
+  const messageDiv = document.createElement('div')
+  messageDiv.className = `ai-message ai-message-${type}`
+
+  if (type === 'loading') {
+    messageDiv.textContent = 'Thinking'
+  } else {
+    messageDiv.textContent = content
+  }
+
+  aiMessages.appendChild(messageDiv)
+  aiMessages.scrollTop = aiMessages.scrollHeight
+
+  return messageDiv
+}
+
+function removeLoadingMessage() {
+  const loading = aiMessages.querySelector('.ai-message-loading')
+  if (loading) {
+    loading.remove()
+  }
+}
+
+async function sendAIMessage() {
+  const question = aiInput.value.trim()
+  if (!question) return
+
+  const jsonData = jsonInput.value.trim()
+  if (!jsonData) {
+    showToast('No JSON data to analyze', 'error')
+    return
+  }
+
+  // Add user message
+  addAIMessage(question, 'user')
+  aiInput.value = ''
+  aiSend.disabled = true
+
+  // Add loading message
+  addAIMessage('', 'loading')
+
+  try {
+    // Initialize session if needed
+    if (!aiSession) {
+      const success = await initAISession()
+      if (!success) {
+        throw new Error('Failed to initialize AI')
+      }
+    }
+
+    // Build the prompt with JSON context
+    const prompt = `Here is the JSON data:
+\`\`\`json
+${jsonData}
+\`\`\`
+
+User question: ${question}`
+
+    // Get AI response
+    const response = await aiSession.prompt(prompt)
+
+    removeLoadingMessage()
+    addAIMessage(response, 'ai')
+  } catch (e) {
+    removeLoadingMessage()
+    addAIMessage('Sorry, I encountered an error. Please try again.', 'ai')
+    console.error('AI error:', e)
+  } finally {
+    aiSend.disabled = false
+  }
+}
+
+function toggleAIPanel() {
+  const isHidden = aiPanel.classList.contains('hidden')
+
+  if (isHidden) {
+    aiPanel.classList.remove('hidden')
+
+    if (!aiAvailable) {
+      aiMessages.classList.add('hidden')
+      aiUnavailable.classList.remove('hidden')
+      aiInput.disabled = true
+      aiSend.disabled = true
+    } else {
+      aiMessages.classList.remove('hidden')
+      aiUnavailable.classList.add('hidden')
+      aiInput.disabled = false
+      aiSend.disabled = false
+      aiInput.focus()
+    }
+  } else {
+    aiPanel.classList.add('hidden')
+  }
+}
+
+function getChromeVersion(): number | null {
+  const match = navigator.userAgent.match(/Chrome\/(\d+)/)
+  if (match && match[1]) {
+    return parseInt(match[1], 10)
+  }
+  return null
+}
+
+async function checkAIFlags(): Promise<{ hasPromptApi: boolean; hasModel: boolean }> {
+  try {
+    const hasPromptApi = 'ai' in window && !!(window as any).ai?.languageModel
+    let hasModel = false
+
+    if (hasPromptApi) {
+      const ai = (window as any).ai
+      const capabilities = await ai.languageModel.capabilities()
+      // Model is available if it's ready or can be downloaded
+      hasModel = capabilities.available === 'readily' ||
+                 capabilities.available === 'after-download' ||
+                 capabilities.available !== 'no'
+    }
+
+    return { hasPromptApi, hasModel }
+  } catch {
+    return { hasPromptApi: false, hasModel: false }
+  }
+}
+
+async function updateAIRequirementsStatus() {
+  const chromeVersion = getChromeVersion()
+  const isChrome = chromeVersion !== null
+  const isChromeVersionOk = chromeVersion !== null && chromeVersion >= 127
+
+  // Chrome version check
+  const chromeReq = document.getElementById('ai-req-chrome')
+  const chromeStatus = chromeReq?.querySelector('.ai-req-status')
+  if (chromeStatus) {
+    if (!isChrome) {
+      chromeStatus.className = 'ai-req-status cross'
+    } else if (isChromeVersionOk) {
+      chromeStatus.className = 'ai-req-status check'
+    } else {
+      chromeStatus.className = 'ai-req-status cross'
+    }
+  }
+
+  // Check flags individually
+  const { hasPromptApi, hasModel } = await checkAIFlags()
+
+  const promptApiReq = document.getElementById('ai-req-prompt-api')
+  const modelReq = document.getElementById('ai-req-model')
+  const restartReq = document.getElementById('ai-req-restart')
+
+  const promptApiStatus = promptApiReq?.querySelector('.ai-req-status')
+  const modelStatus = modelReq?.querySelector('.ai-req-status')
+  const restartStatus = restartReq?.querySelector('.ai-req-status')
+
+  // Prompt API flag check
+  if (promptApiStatus) {
+    promptApiStatus.className = hasPromptApi ? 'ai-req-status check' : 'ai-req-status cross'
+  }
+
+  // Model flag check
+  if (modelStatus) {
+    modelStatus.className = hasModel ? 'ai-req-status check' : 'ai-req-status cross'
+  }
+
+  // Restart check - if we have the API, restart was done
+  if (restartStatus) {
+    if (hasPromptApi) {
+      restartStatus.className = 'ai-req-status check'
+    } else if (isChromeVersionOk) {
+      restartStatus.className = 'ai-req-status unknown'
+    } else {
+      restartStatus.className = 'ai-req-status cross'
+    }
+  }
+}
+
+function setupAIRequirementsLinks() {
+  const links = document.querySelectorAll('.ai-req-link')
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      const url = link.getAttribute('data-url')
+      if (url) {
+        copyToClipboard(url)
+        showToast('URL copied - paste in address bar')
+      }
+    })
+  })
+}
+
+async function initAI() {
+  aiAvailable = await checkAIAvailability()
+
+  // Update status indicators
+  await updateAIRequirementsStatus()
+
+  // Setup click handlers for links
+  setupAIRequirementsLinks()
+
+  // Show AI requirements in help modal if AI is not available
+  if (!aiAvailable) {
+    aiRequirements.classList.remove('hidden')
+  } else {
+    aiRequirements.classList.add('hidden')
+  }
+}
+
 // ============ EXPAND / COLLAPSE ============
 
 function expandAll() {
@@ -931,6 +1183,10 @@ function handleKeyboardShortcuts(e: KeyboardEvent) {
 
   // Escape - close modals or clear search (works everywhere)
   if (e.key === 'Escape') {
+    if (!aiPanel.classList.contains('hidden')) {
+      aiPanel.classList.add('hidden')
+      return
+    }
     if (!urlModal.classList.contains('hidden')) {
       closeUrlModal()
       return
@@ -1016,6 +1272,10 @@ function handleKeyboardShortcuts(e: KeyboardEvent) {
     case 'x':
       e.preventDefault()
       clearInput()
+      break
+    case 'a':
+      e.preventDefault()
+      toggleAIPanel()
       break
   }
 }
@@ -1110,6 +1370,17 @@ shortcutsModal.addEventListener('click', (e) => {
 // Help Button
 helpBtn.addEventListener('click', () => shortcutsModal.classList.remove('hidden'))
 
+// AI Panel
+aiBtn.addEventListener('click', toggleAIPanel)
+aiPanelClose.addEventListener('click', () => aiPanel.classList.add('hidden'))
+aiSend.addEventListener('click', sendAIMessage)
+aiInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault()
+    sendAIMessage()
+  }
+})
+
 // Keyboard shortcuts
 document.addEventListener('keydown', handleKeyboardShortcuts)
 
@@ -1117,6 +1388,7 @@ document.addEventListener('keydown', handleKeyboardShortcuts)
 
 loadTheme()
 loadFromUrl()
+initAI()
 
 if (!loadFromStorage()) {
   // Load sample JSON for demo

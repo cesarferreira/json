@@ -47,6 +47,11 @@
               <button id="collapse-all-btn" title="Collapse All (w)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 14l5-5 5 5"/><path d="M7 19l5-5 5 5"/></svg> Collapse</button>
             </div>
             <div class="toolbar-divider"></div>
+            <!-- AI Assistant -->
+            <div class="btn-group">
+              <button id="ai-btn" title="Ask AI about JSON (a)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2M7.5 13A1.5 1.5 0 006 14.5 1.5 1.5 0 007.5 16 1.5 1.5 0 009 14.5 1.5 1.5 0 007.5 13m9 0a1.5 1.5 0 00-1.5 1.5 1.5 1.5 0 001.5 1.5 1.5 1.5 0 001.5-1.5 1.5 1.5 0 00-1.5-1.5"/></svg> AI</button>
+            </div>
+            <div class="toolbar-divider"></div>
             <!-- Actions -->
             <div class="btn-group">
               <button id="clear-btn" title="Clear (x)" class="btn-danger"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> Clear</button>
@@ -161,9 +166,47 @@
             <div class="shortcut-row"><kbd>t</kbd><span>Toggle Theme</span></div>
             <div class="shortcut-row"><kbd>d</kbd><span>Toggle Diff Mode</span></div>
             <div class="shortcut-row"><kbd>x</kbd><span>Clear</span></div>
+            <div class="shortcut-row"><kbd>a</kbd><span>AI Assistant</span></div>
             <div class="shortcut-row"><kbd>Esc</kbd><span>Close / Unfocus</span></div>
             <div class="shortcut-row"><kbd>?</kbd><span>Show Shortcuts</span></div>
+            <div id="ai-requirements" class="ai-requirements hidden">
+              <div class="ai-requirements-title">AI Assistant Requirements:</div>
+              <ul class="ai-req-list">
+                <li id="ai-req-chrome"><span class="ai-req-status"></span>Chrome 127 or later</li>
+                <li id="ai-req-prompt-api"><span class="ai-req-status"></span>Enable <code class="ai-req-link" data-url="chrome://flags/#prompt-api-for-gemini-nano">chrome://flags/#prompt-api-for-gemini-nano</code></li>
+                <li id="ai-req-model"><span class="ai-req-status"></span>Enable <code class="ai-req-link" data-url="chrome://flags/#optimization-guide-on-device-model">chrome://flags/#optimization-guide-on-device-model</code></li>
+                <li id="ai-req-restart"><span class="ai-req-status"></span>Restart Chrome after enabling flags</li>
+              </ul>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <!-- AI Chat Panel -->
+      <div id="ai-panel" class="ai-panel hidden">
+        <div class="ai-panel-header">
+          <span>AI Assistant</span>
+          <button id="ai-panel-close" class="ai-panel-close">&times;</button>
+        </div>
+        <div id="ai-messages" class="ai-messages">
+          <div class="ai-message ai-message-system">
+            Ask me anything about your JSON data. I can help you understand the structure, find values, or explain what the data represents.
+          </div>
+        </div>
+        <div id="ai-unavailable" class="ai-unavailable hidden">
+          <p>Chrome's built-in AI is not available.</p>
+          <p>Requirements:</p>
+          <ul>
+            <li>Chrome 127 or later</li>
+            <li>Enable: <code>chrome://flags/#prompt-api-for-gemini-nano</code></li>
+            <li>Enable: <code>chrome://flags/#optimization-guide-on-device-model</code></li>
+          </ul>
+        </div>
+        <div class="ai-input-container">
+          <input type="text" id="ai-input" placeholder="Ask about your JSON..." />
+          <button id="ai-send" title="Send">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
         </div>
       </div>
 
