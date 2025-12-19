@@ -1051,18 +1051,14 @@ kbd {
   bottom: 16px;
   right: 16px;
   z-index: 200;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
 }
 
 .ai-fab.hidden {
   opacity: 0;
-  transform: scale(0.8);
+  transform: scale(0.5);
   pointer-events: none;
-}
-
-.ai-fab.fading {
-  opacity: 0;
-  transform: scale(0.9);
 }
 
 .ai-fab-glow {
@@ -1141,31 +1137,31 @@ kbd {
 /* AI Panel */
 .ai-panel {
   position: fixed;
-  bottom: 56px;
+  bottom: 16px;
   right: 16px;
-  transform: scale(0);
-  transform-origin: bottom right;
+  transform: scaleY(0) scaleX(0.8);
+  transform-origin: bottom center;
   width: 420px;
   max-height: 520px;
   background-color: var(--header-bg);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  z-index: 199;
+  z-index: 201;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   opacity: 0;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
 }
 
 .ai-panel.visible {
-  transform: scale(1);
+  transform: scaleY(1) scaleX(1);
   opacity: 1;
 }
 
 .ai-panel.hidden {
-  transform: scale(0);
+  transform: scaleY(0) scaleX(0.8);
   opacity: 0;
   pointer-events: none;
 }

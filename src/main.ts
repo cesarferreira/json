@@ -1069,16 +1069,12 @@ function toggleAIPanel() {
   const isHidden = aiPanel.classList.contains('hidden')
 
   if (isHidden) {
-    // Show panel, fade out FAB
+    // Show panel, hide FAB - they swap places
+    aiFab.classList.add('hidden')
     aiPanel.classList.remove('hidden')
-    aiFab.classList.add('fading')
     requestAnimationFrame(() => {
       aiPanel.classList.add('visible')
     })
-    setTimeout(() => {
-      aiFab.classList.add('hidden')
-      aiFab.classList.remove('fading')
-    }, 200)
 
     if (!aiAvailable) {
       aiMessages.classList.add('hidden')
@@ -1093,17 +1089,12 @@ function toggleAIPanel() {
       aiInput.focus()
     }
   } else {
-    // Hide panel, fade in FAB
+    // Hide panel, show FAB - crossfade so button appears as panel shrinks
     aiPanel.classList.remove('visible')
-    // First add fading to ensure FAB starts invisible
-    aiFab.classList.add('fading')
-    aiFab.classList.remove('hidden')
-    // Use double RAF to ensure the browser has registered the initial state
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        aiFab.classList.remove('fading')
-      })
-    })
+    // Start showing FAB slightly before panel finishes collapsing
+    setTimeout(() => {
+      aiFab.classList.remove('hidden')
+    }, 100)
     setTimeout(() => {
       aiPanel.classList.add('hidden')
     }, 300)
