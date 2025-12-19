@@ -1068,24 +1068,26 @@ kbd {
   background: linear-gradient(
     90deg,
     #ff6b6b,
-    #feca57,
     #48dbfb,
-    #ff9ff3,
-    #54a0ff,
     #5f27cd,
-    #ff6b6b,
     #feca57,
-    #48dbfb
+    #54a0ff,
+    #ff9ff3,
+    #48dbfb,
+    #ff6b6b
   );
-  background-size: 300% 100%;
-  animation: glow-shift 4s ease-in-out infinite;
+  background-size: 400% 100%;
+  animation: glow-shift 12s ease-in-out infinite;
   filter: blur(4px);
   opacity: 0.5;
 }
 
 @keyframes glow-shift {
-  0%, 100% { background-position: 0% 50%; }
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 50%; }
   50% { background-position: 100% 50%; }
+  75% { background-position: 66% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .ai-fab-btn {
@@ -1113,6 +1115,10 @@ kbd {
   border-radius: 4px;
   font-size: 11px;
   color: var(--accent-color);
+}
+
+.ai-fab-btn code.offline {
+  color: #10b981;
 }
 
 .ai-fab-btn:hover {
