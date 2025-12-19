@@ -882,22 +882,22 @@ function updateAIButtonStatus() {
   const glow = document.querySelector('.ai-fab-glow') as HTMLElement
   switch (aiStatus) {
     case 'available':
-      aiBtn.title = 'Ask AI about JSON (a)'
+      aiBtn.title = 'Private AI - runs offline (a)'
       aiBtn.classList.remove('ai-downloading')
       if (glow) glow.style.opacity = '0.8'
       break
     case 'downloadable':
-      aiBtn.title = 'Click to download AI model'
+      aiBtn.title = 'Click to download offline AI model'
       aiBtn.classList.remove('ai-downloading')
       if (glow) glow.style.opacity = '0.5'
       break
     case 'downloading':
-      aiBtn.title = 'Downloading AI model...'
+      aiBtn.title = 'Downloading offline AI model...'
       aiBtn.classList.add('ai-downloading')
       if (glow) glow.style.opacity = '1'
       break
     default:
-      aiBtn.title = 'AI not available'
+      aiBtn.title = 'Private AI not available'
       aiBtn.classList.remove('ai-downloading')
       if (glow) glow.style.opacity = '0.3'
   }

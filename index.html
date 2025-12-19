@@ -161,11 +161,11 @@
             <div class="shortcut-row"><kbd>t</kbd><span>Toggle Theme</span></div>
             <div class="shortcut-row"><kbd>d</kbd><span>Toggle Diff Mode</span></div>
             <div class="shortcut-row"><kbd>x</kbd><span>Clear</span></div>
-            <div class="shortcut-row"><kbd>a</kbd><span>AI Assistant</span></div>
+            <div class="shortcut-row"><kbd>a</kbd><span>Private AI (offline)</span></div>
             <div class="shortcut-row"><kbd>Esc</kbd><span>Close / Unfocus</span></div>
             <div class="shortcut-row"><kbd>?</kbd><span>Show Shortcuts</span></div>
             <div id="ai-requirements" class="ai-requirements hidden">
-              <div class="ai-requirements-title">AI Assistant Requirements:</div>
+              <div class="ai-requirements-title">Private AI Requirements:</div>
               <ul class="ai-req-list">
                 <li id="ai-req-chrome"><span class="ai-req-status"></span><strong>Google Chrome 138+</strong> (not Arc, Brave, Edge)</li>
                 <li id="ai-req-model"><span class="ai-req-status"></span>Enable <code class="ai-req-link" data-url="chrome://flags/#optimization-guide-on-device-model">chrome://flags/#optimization-guide-on-device-model</code></li>
@@ -181,7 +181,7 @@
       <!-- Floating AI Button -->
       <div id="ai-fab" class="ai-fab">
         <div class="ai-fab-glow"></div>
-        <button id="ai-btn" class="ai-fab-btn" title="Ask AI about JSON (a)">
+        <button id="ai-btn" class="ai-fab-btn" title="Private AI - runs offline (a)">
           <svg class="ai-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2M7.5 13A1.5 1.5 0 006 14.5 1.5 1.5 0 007.5 16 1.5 1.5 0 009 14.5 1.5 1.5 0 007.5 13m9 0a1.5 1.5 0 00-1.5 1.5 1.5 1.5 0 001.5 1.5 1.5 1.5 0 001.5-1.5 1.5 1.5 0 00-1.5-1.5"/>
           </svg>
@@ -191,14 +191,14 @@
       <!-- AI Chat Panel -->
       <div id="ai-panel" class="ai-panel hidden">
         <div class="ai-panel-header">
-          <span>AI Assistant</span>
+          <span>Private AI <span class="ai-offline-badge">offline</span> <code class="ai-model-name">gemini-nano</code></span>
           <button id="ai-panel-close" class="ai-panel-close" title="Minimize">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
           </button>
         </div>
         <div id="ai-messages" class="ai-messages">
           <div class="ai-message ai-message-system">
-            Ask me anything about your JSON data. I can help you understand the structure, find values, or explain what the data represents.
+            Ask me anything about your JSON. This AI runs entirely on your device - your data never leaves your browser.
           </div>
         </div>
         <div id="ai-unavailable" class="ai-unavailable hidden">

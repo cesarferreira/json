@@ -1146,6 +1146,32 @@ kbd {
   font-weight: 500;
 }
 
+.ai-offline-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  margin-left: 6px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.ai-model-name {
+  font-size: 10px;
+  font-weight: 400;
+  padding: 2px 6px;
+  margin-left: 4px;
+  background-color: var(--pane-bg);
+  color: var(--text-muted);
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  vertical-align: middle;
+}
+
 .ai-panel-close {
   background: transparent;
   border: none;
