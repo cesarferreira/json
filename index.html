@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON Parser</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>JSON Parser</h1>
+        <div class="toolbar">
+          <button id="format-btn" title="Format JSON">Format</button>
+          <button id="minify-btn" title="Minify JSON">Minify</button>
+          <button id="clear-btn" title="Clear">Clear</button>
+          <button id="expand-all-btn" title="Expand All">Expand All</button>
+          <button id="collapse-all-btn" title="Collapse All">Collapse All</button>
+        </div>
+      </header>
+      <main class="main">
+        <div class="pane left-pane">
+          <div class="pane-header">
+            <span>Input JSON</span>
+            <span id="status" class="status"></span>
+          </div>
+          <textarea id="json-input" placeholder="Paste your JSON here..." spellcheck="false"></textarea>
+        </div>
+        <div class="resizer" id="resizer"></div>
+        <div class="pane right-pane">
+          <div class="pane-header">
+            <span>Tree View</span>
+            <span id="stats" class="stats"></span>
+          </div>
+          <div id="json-tree" class="json-tree"></div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
