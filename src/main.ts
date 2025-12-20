@@ -1,5 +1,6 @@
 import './style.css'
 import { marked } from 'marked'
+import yaml from 'js-yaml'
 
 // Configure marked for safe rendering
 marked.setOptions({
@@ -10,12 +11,17 @@ marked.setOptions({
 type JsonValue = string | number | boolean | null | JsonObject | JsonArray
 type JsonObject = { [key: string]: JsonValue }
 type JsonArray = JsonValue[]
+type DataFormat = 'json' | 'yaml'
 
 interface ParseResult {
   valid: boolean
   data?: JsonValue
   error?: string
+  format?: DataFormat
 }
+
+// Track current format
+let currentFormat: DataFormat = 'json'
 
 interface Stats {
   objects: number
@@ -44,6 +50,7 @@ const lineNumbers = document.getElementById('line-numbers') as HTMLDivElement
 const jsonTree = document.getElementById('json-tree') as HTMLDivElement
 const statusEl = document.getElementById('status') as HTMLSpanElement
 const statsEl = document.getElementById('stats') as HTMLSpanElement
+const formatBadge = document.getElementById('format-badge') as HTMLSpanElement
 
 // DOM Elements - Toolbar
 const formatBtn = document.getElementById('format-btn') as HTMLButtonElement
@@ -122,17 +129,55 @@ let aiAvailable = false
 
 // ============ UTILITY FUNCTIONS ============
 
-function parseJson(text: string): ParseResult {
+function detectFormat(text: string): DataFormat {
+  const trimmed = text.trim()
+  // JSON starts with { or [
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    return 'json'
+  }
+  // Everything else is treated as YAML
+  return 'yaml'
+}
+
+function parseData(text: string): ParseResult {
   if (!text.trim()) {
-    return { valid: false }
+    return { valid: false, format: 'json' }
   }
+
+  const format = detectFormat(text)
+  currentFormat = format
+
   try {
-    const data = JSON.parse(text)
-    return { valid: true, data }
+    let data: JsonValue
+    if (format === 'json') {
+      data = JSON.parse(text)
+    } else {
+      // Normalize YAML:
+      // - Normalize line endings (Windows CRLF to LF)
+      // - Convert tabs to 2 spaces (YAML requires spaces for indentation)
+      // - Remove non-breaking spaces and other invisible characters
+      // - Remove trailing whitespace from lines
+      const normalizedText = text
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .replace(/\t/g, '  ')
+        .replace(/\u00A0/g, ' ')  // Non-breaking space
+        .replace(/\u2003/g, ' ')  // Em space
+        .replace(/\u2002/g, ' ')  // En space
+        .replace(/\u2009/g, ' ')  // Thin space
+        .replace(/[ \t]+$/gm, '') // Trailing whitespace per line
+      data = yaml.load(normalizedText) as JsonValue
+    }
+    return { valid: true, data, format }
   } catch (e) {
-    const error = e as SyntaxError
-    return { valid: false, error: error.message }
+    const error = e as Error
+    return { valid: false, error: error.message, format }
   }
+}
+
+// Alias for backward compatibility
+function parseJson(text: string): ParseResult {
+  return parseData(text)
 }
 
 function getType(value: JsonValue): string {
@@ -222,8 +267,117 @@ function highlightJson(text: string): string {
   return result
 }
 
+function highlightYaml(text: string): string {
+  if (!text) return ''
+
+  const lines = text.split('\n')
+  const result: string[] = []
+
+  for (const line of lines) {
+    let highlighted = ''
+    let i = 0
+
+    // Check for comment
+    const commentIndex = line.indexOf('#')
+    const lineContent = commentIndex >= 0 ? line.slice(0, commentIndex) : line
+    const comment = commentIndex >= 0 ? line.slice(commentIndex) : ''
+
+    // Process line content
+    while (i < lineContent.length) {
+      const char = lineContent[i]
+
+      // Handle leading whitespace
+      if (i === 0 || (i > 0 && /^\s*$/.test(lineContent.slice(0, i)))) {
+        if (/\s/.test(char)) {
+          highlighted += char
+          i++
+          continue
+        }
+      }
+
+      // Array item marker
+      if (char === '-' && (i === 0 || /^\s*$/.test(lineContent.slice(0, i)))) {
+        highlighted += `<span class="hl-punctuation">-</span>`
+        i++
+        continue
+      }
+
+      // Check for key: value pattern
+      const restOfLine = lineContent.slice(i)
+      const keyMatch = restOfLine.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*:/)
+      if (keyMatch) {
+        highlighted += `<span class="hl-key">${escapeHtml(keyMatch[1])}</span>`
+        i += keyMatch[1].length
+        // Add the colon
+        while (i < lineContent.length && lineContent[i] !== ':') i++
+        if (lineContent[i] === ':') {
+          highlighted += `<span class="hl-punctuation">:</span>`
+          i++
+        }
+        // Skip whitespace after colon
+        while (i < lineContent.length && /\s/.test(lineContent[i])) {
+          highlighted += lineContent[i]
+          i++
+        }
+        // Now parse the value
+        const value = lineContent.slice(i).trim()
+        if (value) {
+          highlighted += highlightYamlValue(lineContent.slice(i))
+          break
+        }
+        continue
+      }
+
+      // If we're here, it's likely a value or continuation
+      highlighted += highlightYamlValue(lineContent.slice(i))
+      break
+    }
+
+    // Add comment if present
+    if (comment) {
+      highlighted += `<span class="hl-comment">${escapeHtml(comment)}</span>`
+    }
+
+    result.push(highlighted)
+  }
+
+  return result.join('\n')
+}
+
+function highlightYamlValue(value: string): string {
+  const trimmed = value.trim()
+  const leadingSpace = value.match(/^\s*/)?.[0] || ''
+
+  // Quoted strings
+  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+      (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+    return leadingSpace + `<span class="hl-string">${escapeHtml(trimmed)}</span>`
+  }
+
+  // Booleans
+  if (/^(true|false|yes|no|on|off)$/i.test(trimmed)) {
+    return leadingSpace + `<span class="hl-boolean">${escapeHtml(trimmed)}</span>`
+  }
+
+  // Null
+  if (/^(null|~)$/i.test(trimmed)) {
+    return leadingSpace + `<span class="hl-null">${escapeHtml(trimmed)}</span>`
+  }
+
+  // Numbers
+  if (/^-?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(trimmed)) {
+    return leadingSpace + `<span class="hl-number">${escapeHtml(trimmed)}</span>`
+  }
+
+  // Unquoted strings
+  return leadingSpace + `<span class="hl-string">${escapeHtml(trimmed)}</span>`
+}
+
 function updateSyntaxHighlight(textarea: HTMLTextAreaElement, highlight: HTMLPreElement) {
-  highlight.innerHTML = highlightJson(textarea.value) + '\n'
+  const text = textarea.value
+  const format = detectFormat(text)
+  const highlighted = format === 'json' ? highlightJson(text) : highlightYaml(text)
+  highlight.innerHTML = highlighted + '\n'
 }
 
 function updateLineNumbers(textarea: HTMLTextAreaElement, lineNumbersEl: HTMLDivElement) {
@@ -479,7 +633,7 @@ function showError(message: string) {
 }
 
 function showEmpty() {
-  jsonTree.innerHTML = '<div class="empty-state">Paste JSON on the left to visualize</div>'
+  jsonTree.innerHTML = '<div class="empty-state">Paste JSON or YAML on the left to visualize</div>'
 }
 
 function updateStatus(result: ParseResult, el: HTMLSpanElement = statusEl) {
@@ -489,11 +643,12 @@ function updateStatus(result: ParseResult, el: HTMLSpanElement = statusEl) {
     return
   }
 
+  const formatLabel = (result.format || currentFormat).toUpperCase()
   if (result.valid) {
-    el.textContent = 'Valid JSON'
+    el.textContent = `Valid ${formatLabel}`
     el.className = 'status valid'
   } else {
-    el.textContent = 'Invalid JSON'
+    el.textContent = `Invalid ${formatLabel}`
     el.className = 'status invalid'
   }
 }
@@ -719,35 +874,50 @@ async function copyToClipboard(text: string) {
 }
 
 function downloadJson() {
-  const result = parseJson(jsonInput.value)
+  const result = parseData(jsonInput.value)
   if (!result.valid) {
-    showToast('Invalid JSON', 'error')
+    showToast(`Invalid ${currentFormat.toUpperCase()}`, 'error')
     return
   }
 
-  const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' })
+  let content: string
+  let mimeType: string
+  let filename: string
+
+  if (currentFormat === 'yaml') {
+    content = yaml.dump(result.data, { indent: 2, lineWidth: -1 })
+    mimeType = 'application/x-yaml'
+    filename = 'data.yaml'
+  } else {
+    content = JSON.stringify(result.data, null, 2)
+    mimeType = 'application/json'
+    filename = 'data.json'
+  }
+
+  const blob = new Blob([content], { type: mimeType })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = 'data.json'
+  a.download = filename
   a.click()
   URL.revokeObjectURL(url)
-  showToast('JSON downloaded')
+  showToast(`${currentFormat.toUpperCase()} downloaded`)
 }
 
 function shareViaUrl() {
   const text = jsonInput.value.trim()
   if (!text) {
-    showToast('No JSON to share', 'error')
+    showToast(`No ${currentFormat.toUpperCase()} to share`, 'error')
     return
   }
 
   try {
     const compressed = btoa(encodeURIComponent(text))
-    const url = `${window.location.origin}${window.location.pathname}?data=${compressed}`
+    const formatParam = currentFormat !== 'json' ? `&format=${currentFormat}` : ''
+    const url = `${window.location.origin}${window.location.pathname}?data=${compressed}${formatParam}`
 
     if (url.length > 2000) {
-      showToast('JSON too large to share via URL', 'error')
+      showToast('Data too large to share via URL', 'error')
       return
     }
 
@@ -761,16 +931,21 @@ function shareViaUrl() {
 function loadFromUrl() {
   const params = new URLSearchParams(window.location.search)
   const data = params.get('data')
+  const format = params.get('format') as DataFormat | null
 
   if (data) {
     try {
       const decoded = decodeURIComponent(atob(data))
+      // Set format before loading to ensure proper handling
+      if (format === 'yaml') {
+        currentFormat = 'yaml'
+      }
       jsonInput.value = decoded
       handleInput()
       // Clear the URL parameter
       window.history.replaceState({}, '', window.location.pathname)
     } catch {
-      console.error('Failed to load JSON from URL')
+      console.error('Failed to load data from URL')
     }
   }
 }
@@ -928,8 +1103,8 @@ async function initAISession(showProgress = false) {
     }
 
     aiSession = await languageModel.create({
-      systemPrompt: `You help users explore JSON data. Answer in plain English.
-After your answer, write "Source:" followed by the JSON path.
+      systemPrompt: `You help users explore JSON and YAML data. Answer in plain English.
+After your answer, write "Source:" followed by the data path.
 Example answer: "The theme is dark. Source: settings.theme"
 Keep answers short.`,
       expectedOutputLanguages: ['en'],
@@ -959,7 +1134,8 @@ function makePathsClickable(element: HTMLElement) {
   codeElements.forEach(code => {
     const text = code.textContent || ''
     // Check if it looks like a JSON path - must contain a dot, bracket, or start with $
-    const looksLikePath = /^[$\w][\w.[\]0-9]*$/.test(text) &&
+    // Include hyphens since YAML/JSON keys can contain them (e.g., "calling-birds")
+    const looksLikePath = /^[$\w-][\w.\-[\]0-9]*$/.test(text) &&
                           (text.includes('.') || text.includes('[') || text.startsWith('$'))
     if (looksLikePath && text.length > 1) {
       code.classList.add('json-path-link')
@@ -982,8 +1158,9 @@ function makePathsClickable(element: HTMLElement) {
 
   // Pattern 1: "Source: path.to.value" - specifically look for Source: prefix
   // Pattern 2: paths with dots like "settings.theme" but only if they have 2+ segments
-  const sourcePattern = /Source:\s*([\w][\w.[\]0-9]*)/gi
-  const pathPattern = /\b([\w]+\.[\w.[\]0-9]+)\b/g
+  // Note: Include hyphens in patterns since YAML/JSON keys can contain them (e.g., "calling-birds")
+  const sourcePattern = /Source:\s*([\w-][\w.\-[\]0-9]*)/gi
+  const pathPattern = /\b([\w-]+\.[\w.\-[\]0-9]+)\b/g
 
   textNodes.forEach(textNode => {
     const text = textNode.textContent || ''
@@ -1127,8 +1304,9 @@ async function sendAIMessage() {
 
     console.log('[AI] Session methods:', Object.keys(aiSession), aiSession)
 
-    // Build the prompt with JSON context
-    const promptText = `JSON data:
+    // Build the prompt with data context
+    const formatLabel = currentFormat.toUpperCase()
+    const promptText = `${formatLabel} data:
 ${jsonData}
 
 Question: ${question}
@@ -1459,11 +1637,18 @@ function setDiffMode() {
 
 // ============ MAIN HANDLERS ============
 
+function updateFormatBadge(format: DataFormat) {
+  formatBadge.textContent = format.toUpperCase()
+  formatBadge.classList.remove('json', 'yaml')
+  formatBadge.classList.add(format)
+}
+
 function handleInput() {
-  const result = parseJson(jsonInput.value)
+  const result = parseData(jsonInput.value)
   updateStatus(result)
   updateSyntaxHighlight(jsonInput, syntaxHighlight)
   updateLineNumbers(jsonInput, lineNumbers)
+  updateFormatBadge(result.format || 'json')
 
   if (!jsonInput.value.trim()) {
     showEmpty()
@@ -1487,20 +1672,31 @@ function handleInput() {
 }
 
 function formatJson() {
-  const result = parseJson(jsonInput.value)
+  const result = parseData(jsonInput.value)
   if (result.valid && result.data !== undefined) {
-    jsonInput.value = JSON.stringify(result.data, null, 2)
+    if (currentFormat === 'yaml') {
+      jsonInput.value = yaml.dump(result.data, { indent: 2, lineWidth: -1, noRefs: true })
+      showToast('YAML formatted')
+    } else {
+      jsonInput.value = JSON.stringify(result.data, null, 2)
+      showToast('JSON formatted')
+    }
     handleInput()
-    showToast('JSON formatted')
   }
 }
 
 function minifyJson() {
-  const result = parseJson(jsonInput.value)
+  const result = parseData(jsonInput.value)
   if (result.valid && result.data !== undefined) {
-    jsonInput.value = JSON.stringify(result.data)
+    if (currentFormat === 'yaml') {
+      // Use flow style for compact YAML
+      jsonInput.value = yaml.dump(result.data, { flowLevel: 0, lineWidth: -1 })
+      showToast('YAML minified')
+    } else {
+      jsonInput.value = JSON.stringify(result.data)
+      showToast('JSON minified')
+    }
     handleInput()
-    showToast('JSON minified')
   }
 }
 

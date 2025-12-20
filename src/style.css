@@ -394,6 +394,21 @@ html, body {
   background-color: rgba(241, 76, 76, 0.1);
 }
 
+.format-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: var(--accent-color);
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+.format-badge.yaml {
+  background-color: #f59e0b;
+}
+
 .stats {
   font-size: 11px;
   color: var(--text-muted);
@@ -504,6 +519,7 @@ html, body {
 .hl-null { color: var(--null-color); }
 .hl-key { color: var(--key-color); }
 .hl-bracket { color: var(--bracket-color); }
+.hl-comment { color: var(--text-muted); font-style: italic; }
 .hl-punctuation { color: var(--text-muted); }
 
 /* Resizer */
@@ -1460,6 +1476,7 @@ kbd {
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 2px;
+  white-space: nowrap;
 }
 
 .ai-source-bubble code.json-path-link:hover {
