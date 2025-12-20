@@ -679,6 +679,94 @@ const jsonExamples = [
       "times_asked_today": 47,
       "router_location": "behind the couch, under the cat"
     }
+  },
+  {
+    "startup": {
+      "name": "DisruptoCorp",
+      "mission": "Making the world a better place through AI-powered blockchain NFTs",
+      "founded": "last Tuesday",
+      "valuation": "$50 billion (trust me bro)",
+      "employees": [
+        { "name": "Chad", "title": "CEO/Visionary/Ninja", "equity": "99%", "does_actual_work": false },
+        { "name": "Everyone Else", "title": "Full-Stack Rockstar", "equity": "1% split", "does_actual_work": true }
+      ],
+      "products": [],
+      "revenue": 0,
+      "ping_pong_tables": 7,
+      "office_snacks": ["artisanal kombucha", "organic kale chips", "cold brew on tap"],
+      "buzzwords_per_meeting": 47,
+      "investor_updates": {
+        "growth": "hockey stick (any day now)",
+        "burn_rate": "sustainable (we have 3 months runway)",
+        "pivot_count": 12
+      }
+    }
+  },
+  {
+    "rpg_character": {
+      "name": "Leeroy Jenkins",
+      "class": "Paladin (barely)",
+      "level": 42,
+      "stats": {
+        "strength": 18,
+        "intelligence": 3,
+        "wisdom": 1,
+        "charisma": 20,
+        "luck": -50,
+        "impulse_control": 0
+      },
+      "inventory": [
+        { "item": "Sword of Moderate Discomfort", "damage": "2d6 + regret", "cursed": true },
+        { "item": "Shield of Blame Deflection", "defense": 10, "effect": "reflects criticism" },
+        { "item": "Potion of Bad Decisions", "quantity": 99, "effect": "doubles confidence, halves judgment" }
+      ],
+      "skills": {
+        "chicken_counting": { "level": "master", "chickens_counted": 12345 },
+        "plan_following": { "level": "nonexistent", "plans_followed": 0 },
+        "dramatic_entrance": { "level": "legendary", "wipes_caused": 847 }
+      },
+      "guild_status": "banned from most",
+      "famous_last_words": "At least I have chicken"
+    }
+  },
+  {
+    "airline": {
+      "name": "Probably Won't Crash Airlines",
+      "slogan": "Your bags are in another country",
+      "flights": [
+        {
+          "number": "PC666",
+          "from": "Somewhere",
+          "to": "TBD",
+          "status": "delayed (shocking)",
+          "delay_reason": "the vibes are off",
+          "actual_departure": "¯\\_(ツ)_/¯"
+        },
+        {
+          "number": "PC420",
+          "from": "Gate changed 5 times",
+          "to": "Hopefully your destination",
+          "status": "boarding (run!)",
+          "seats_remaining": -3,
+          "leg_room": "lol"
+        }
+      ],
+      "amenities": {
+        "wifi": { "available": true, "working": false, "price": "$49.99/minute" },
+        "food": { "edible": "questionable", "identifiable": false },
+        "entertainment": "crying babies surround sound"
+      },
+      "baggage_policy": {
+        "carry_on": "must fit in microscopic overhead bin",
+        "checked": "guaranteed to visit 3 continents without you",
+        "fees": "yes"
+      },
+      "customer_service": {
+        "hold_time": "∞",
+        "helpfulness": null,
+        "music": "same 30 second loop since 1987"
+      }
+    }
   }
 ]
 
@@ -743,7 +831,163 @@ home:
     last_adjusted_by: "the cat"
   alexa:
     status: "listening (always)"
-    random_laugh: scheduled for 3am`
+    random_laugh: scheduled for 3am`,
+
+  `# Dungeons & Dragons Campaign
+campaign:
+  name: "The Curse of the Missing Snacks"
+  dungeon_master: "Kevin (power trip enthusiast)"
+  session_zero_promises:
+    - "This will be a serious campaign"
+    - "No murder hobos"
+    - "We'll play every week"
+  session_zero_reality:
+    serious_campaign: false
+    murder_hobos: "immediately"
+    sessions_actually_played: 3
+
+  party:
+    - name: "Stabitha"
+      class: "Rogue"
+      alignment: "Chaotic Gremlin"
+      backstory: "orphan (obviously)"
+      has_stolen_from_party: true
+      times_caught: 0
+
+    - name: "Fireball McBlasty"
+      class: "Wizard"
+      alignment: "Chaotic Stupid"
+      spell_slots_remaining: 0
+      fireballs_cast_indoors: 47
+      buildings_destroyed: 12
+
+    - name: "Sir Healz-a-Lot"
+      class: "Cleric"
+      alignment: "Lawful Tired"
+      healing_potions_wasted_on_rogue: 89
+      considering_letting_party_die: true
+
+    - name: "Edge McEdgelord"
+      class: "Warlock"
+      patron: "definitely not suspicious"
+      backstory_length: "47 pages single-spaced"
+      times_brooded_in_corner: infinity
+
+  total_nat_ones: 847
+  snacks_consumed: "all of them"
+  next_session: "when schedules align (never)"`,
+
+  `# Corporate Software Project
+project:
+  name: "Project Phoenix Rising 2.0 Turbo"
+  original_deadline: "Q1 2023"
+  current_deadline: "Q4 2025 (probably)"
+  deadline_extensions: 12
+
+  requirements:
+    documented: false
+    understood: false
+    changed_last_minute: always
+    source: "the CEO's nephew had an idea"
+
+  tech_stack:
+    frontend: "React (but which version? yes)"
+    backend: "microservices (200+ and counting)"
+    database: "MongoDB (for everything, even relational data)"
+    deployment: "works on my machine"
+
+  team:
+    developers:
+      - name: "Senior Dev"
+        status: "burned out"
+        coffee_consumed: "IV drip"
+        wants_to_quit: "desperately"
+      - name: "Junior Dev"
+        status: "mass terrified"
+        stack_overflow_tabs_open: 847
+        assigned_bugs: "all of them"
+      - name: "Intern"
+        status: "confused"
+        paid: false
+        making_coffee: true
+    project_manager:
+      status: "making gantt charts"
+      charts_consulted: 0
+      standups_extended: "all of them"
+
+  bugs:
+    known: 3847
+    fixed: 12
+    marked_as_features: 2000
+    blamed_on_users: 1835
+
+  documentation:
+    exists: "technically"
+    accurate: false
+    last_updated: "2019"
+
+  production_incidents:
+    this_week: 7
+    blamed_on_dns: 6
+    actually_dns: 1`,
+
+  `# Dating App Profile (Honest Version)
+profile:
+  basics:
+    name: "Average Human Person"
+    age: "29 (for the 5th year)"
+    height: "5'10 (with good posture and platform shoes)"
+    location: "10 miles away (actually 47)"
+
+  photos:
+    - type: "main"
+      features: "sunglasses, hat, and beard hiding 90% of face"
+      taken: "2017"
+    - type: "group"
+      you_are: "the short one in back, maybe?"
+    - type: "adventure"
+      context: "that one time I went outside"
+      will_repeat: false
+    - type: "pet"
+      actual_owner: "roommate"
+
+  bio:
+    claims:
+      - "love to laugh (groundbreaking)"
+      - "fluent in sarcasm"
+      - "looking for partner in crime"
+      - "not here for hookups (unless attractive)"
+    reality:
+      - "watches TV"
+      - "mildly amusing at best"
+      - "needs someone to watch TV with"
+      - "standards flexible"
+
+  interests:
+    listed:
+      - hiking
+      - traveling
+      - trying new restaurants
+      - working out
+    actual:
+      - walking to fridge
+      - google street view
+      - ordering same thing everywhere
+      - lifting remote
+
+  looking_for:
+    height_requirement: "taller than me (I'm 5'2)"
+    must_love: "dogs (I don't have one)"
+    dealbreakers:
+      - "no sense of humor"
+      - "doesn't like The Office"
+      - "uses incorrect your/you're"
+    will_actually_swipe_right_on: "anyone at this point"
+
+  messaging_style:
+    opener: "hey"
+    follow_up: "hey" (3 days later)
+    conversation_skills: null`
 ]
 
 function loadRandomJsonExample() {
