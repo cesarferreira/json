@@ -125,20 +125,7 @@ body {
 }
 
 .gradient-text {
-  background: linear-gradient(
-    90deg,
-    #ff6b6b,
-    #48dbfb,
-    #5f27cd,
-    #feca57,
-    #54a0ff,
-    #ff9ff3,
-    #48dbfb,
-    #ff6b6b
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #3b82f6;
 }
 
 .hero-subtitle {
