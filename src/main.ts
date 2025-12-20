@@ -42,6 +42,7 @@ interface DiffResult {
 // Storage keys
 const STORAGE_KEY = 'parsy-data'
 const THEME_KEY = 'parsy-theme'
+const PANE_WIDTH_KEY = 'parsy-pane-width'
 
 // DOM Elements - Editor Mode
 const jsonInput = document.getElementById('json-input') as HTMLTextAreaElement
@@ -1817,6 +1818,21 @@ function handleKeyboardShortcuts(e: KeyboardEvent) {
 
 let isResizing = false
 
+function savePaneWidth() {
+  const width = leftPane.getBoundingClientRect().width
+  localStorage.setItem(PANE_WIDTH_KEY, String(width))
+}
+
+function loadPaneWidth() {
+  const savedWidth = localStorage.getItem(PANE_WIDTH_KEY)
+  if (savedWidth) {
+    const width = parseInt(savedWidth, 10)
+    if (width >= 200) {
+      leftPane.style.width = `${width}px`
+    }
+  }
+}
+
 resizer.addEventListener('mousedown', (e) => {
   isResizing = true
   resizer.classList.add('dragging')
@@ -1837,6 +1853,9 @@ document.addEventListener('mousemove', (e) => {
 })
 
 document.addEventListener('mouseup', () => {
+  if (isResizing) {
+    savePaneWidth()
+  }
   isResizing = false
   resizer.classList.remove('dragging')
 })
@@ -1929,6 +1948,7 @@ document.addEventListener('keydown', handleKeyboardShortcuts)
 // ============ INITIALIZATION ============
 
 loadTheme()
+loadPaneWidth()
 loadFromUrl()
 initAI()
 
