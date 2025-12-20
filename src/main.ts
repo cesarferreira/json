@@ -40,8 +40,8 @@ interface DiffResult {
 }
 
 // Storage keys
-const STORAGE_KEY = 'json-parser-data'
-const THEME_KEY = 'json-parser-theme'
+const STORAGE_KEY = 'parsy-data'
+const THEME_KEY = 'parsy-theme'
 
 // DOM Elements - Editor Mode
 const jsonInput = document.getElementById('json-input') as HTMLTextAreaElement
@@ -1935,7 +1935,7 @@ initAI()
 if (!loadFromStorage()) {
   // Load sample JSON for demo
   const sampleJson = {
-    "name": "JSON Parser",
+    "name": "Parsy",
     "version": "1.0.0",
     "features": ["validation", "tree view", "expand/collapse", "syntax highlighting", "search", "diff"],
     "settings": {
