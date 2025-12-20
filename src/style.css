@@ -8,6 +8,7 @@
   --bg-color: #1e1e1e;
   --header-bg: #252526;
   --pane-bg: #1e1e1e;
+  --pane-bg-alt: #181818;
   --pane-header-bg: #2d2d2d;
   --border-color: #3c3c3c;
   --text-color: #d4d4d4;
@@ -39,6 +40,7 @@
   --bg-color: #ffffff;
   --header-bg: #f3f3f3;
   --pane-bg: #ffffff;
+  --pane-bg-alt: #f8f8f8;
   --pane-header-bg: #e8e8e8;
   --border-color: #d4d4d4;
   --text-color: #1e1e1e;
@@ -348,6 +350,7 @@ html, body {
 .right-pane {
   flex: 1;
   min-width: 200px;
+  background-color: var(--pane-bg-alt);
 }
 
 .diff-pane {
@@ -550,7 +553,7 @@ html, body {
 }
 
 .json-tree::-webkit-scrollbar-track {
-  background-color: var(--pane-bg);
+  background-color: var(--pane-bg-alt);
 }
 
 .json-tree::-webkit-scrollbar-thumb {
