@@ -633,8 +633,144 @@ function showError(message: string) {
   jsonTree.innerHTML = `<div class="error-message">Error: ${escapeHtml(message)}</div>`
 }
 
+// Funny example data
+const jsonExamples = [
+  {
+    "cat": {
+      "name": "Sir Whiskers III",
+      "title": "Chief Napping Officer",
+      "skills": ["knocking things off tables", "3am zoomies", "ignoring humans"],
+      "lives_remaining": 7,
+      "mood": "plotting world domination"
+    }
+  },
+  {
+    "pizza_order": {
+      "customer": "Definitely Not A Dog",
+      "toppings": ["ALL the meat", "more meat", "extra meat"],
+      "special_instructions": "Leave at door. Do NOT ring bell. Trust me.",
+      "suspicious_barking": false
+    }
+  },
+  {
+    "developer": {
+      "name": "Anonymous",
+      "coffee_cups_today": 7,
+      "mass_of_imposter_syndrome": "∞ kg",
+      "tabs_open": 347,
+      "knows_what_theyre_doing": false,
+      "stack_overflow_visits": 42069
+    }
+  },
+  {
+    "meeting": {
+      "title": "Quick Sync",
+      "scheduled_duration": "15 minutes",
+      "actual_duration": "2 hours",
+      "could_have_been_email": true,
+      "attendees_paying_attention": 0,
+      "people_on_mute": "everyone"
+    }
+  },
+  {
+    "wifi_password": {
+      "name": "YellLouderForPassword",
+      "actual_password": "It's on the fridge, Karen",
+      "times_asked_today": 47,
+      "router_location": "behind the couch, under the cat"
+    }
+  }
+]
+
+const yamlExamples = [
+  `# The Ultimate Todo List
+todo:
+  today:
+    - panic about deadlines
+    - drink coffee
+    - pretend to work
+    - more coffee
+    - actual work (maybe)
+    - regret life choices
+  tomorrow:
+    - repeat`,
+
+  `# Honest Job Application
+candidate:
+  name: Overqualified Potato
+  experience: 10 years of googling error messages
+  skills:
+    - mass_imposter_syndrome: expert
+    - mass_procrastination: master
+    - mass_stack_overflow: black belt
+  references:
+    - my mass_mom (she thinks I'm great)`,
+
+  `# Cat's Daily Schedule
+schedule:
+  03:00: "run around screaming"
+  03:15: "knock something off counter"
+  03:30: "stare at wall (ghost patrol)"
+  07:00: "demand breakfast aggressively"
+  07:05: "ignore breakfast"
+  12:00: "nap on laptop keyboard"
+  18:00: "dinner tantrum"
+  23:00: "become possessed"`,
+
+  `# Honest Recipe
+recipe:
+  name: "Cereal"
+  difficulty: "Michelin Star"
+  prep_time: "3 seconds"
+  cook_time: "0 seconds"
+  ingredients:
+    - cereal: "whatever's not stale"
+    - milk: "smell test required"
+  steps:
+    - pour cereal
+    - add milk
+    - question your life choices
+    - eat over sink like a goblin`,
+
+  `# Smart Home Status
+home:
+  lights:
+    living_room: "flickering ominously"
+    bathroom: "controlled by ghost"
+  thermostat:
+    set_to: 72
+    actual_temp: "who knows"
+    last_adjusted_by: "the cat"
+  alexa:
+    status: "listening (always)"
+    random_laugh: scheduled for 3am`
+]
+
+function loadRandomJsonExample() {
+  const example = jsonExamples[Math.floor(Math.random() * jsonExamples.length)]
+  jsonInput.value = JSON.stringify(example, null, 2)
+  handleInput()
+}
+
+function loadRandomYamlExample() {
+  const example = yamlExamples[Math.floor(Math.random() * yamlExamples.length)]
+  jsonInput.value = example.trim()
+  handleInput()
+}
+
 function showEmpty() {
-  jsonTree.innerHTML = '<div class="empty-state">Paste JSON or YAML on the left to visualize</div>'
+  jsonTree.innerHTML = `
+    <div class="empty-state">
+      <p>Paste JSON or YAML on the left to visualize</p>
+      <div class="empty-state-actions">
+        <button id="load-json-example" class="example-btn">Load JSON Example</button>
+        <button id="load-yaml-example" class="example-btn">Load YAML Example</button>
+      </div>
+    </div>
+  `
+
+  document.getElementById('load-json-example')?.addEventListener('click', loadRandomJsonExample)
+  document.getElementById('load-yaml-example')?.addEventListener('click', loadRandomYamlExample)
 }
 
 function updateStatus(result: ParseResult, el: HTMLSpanElement = statusEl) {
