@@ -1695,15 +1695,14 @@ Answer (then write "Source: path.to.value"):`
 
     console.log('[AI] Calling prompt with:', promptText.substring(0, 100) + '...')
 
-    // Remove loading message before streaming starts
-    removeLoadingMessage()
-
-    // Create message element for streaming
+    // Create message element for streaming (hidden until we get content)
     const messageDiv = document.createElement('div')
     messageDiv.className = 'ai-message ai-message-ai'
+    messageDiv.style.display = 'none'
     aiMessages.appendChild(messageDiv)
 
     let fullResponse = ''
+    let firstChunkReceived = false
 
     // Try streaming first, fall back to regular prompt
     if (typeof aiSession.promptStreaming === 'function') {
@@ -1711,6 +1710,12 @@ Answer (then write "Source: path.to.value"):`
       const stream = aiSession.promptStreaming(promptText)
 
       for await (const chunk of stream) {
+        // Remove loading message on first chunk
+        if (!firstChunkReceived) {
+          removeLoadingMessage()
+          messageDiv.style.display = ''
+          firstChunkReceived = true
+        }
         fullResponse += chunk // Concatenate chunks
         messageDiv.innerHTML = marked.parse(fullResponse) as string
         aiMessages.scrollTop = aiMessages.scrollHeight
@@ -1720,6 +1725,8 @@ Answer (then write "Source: path.to.value"):`
     } else if (typeof aiSession.prompt === 'function') {
       console.log('[AI] Using prompt() method (non-streaming)')
       fullResponse = await aiSession.prompt(promptText)
+      removeLoadingMessage()
+      messageDiv.style.display = ''
       messageDiv.innerHTML = marked.parse(fullResponse) as string
       makePathsClickable(messageDiv)
     } else {
