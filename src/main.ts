@@ -1653,6 +1653,89 @@ function removeLoadingMessage() {
   }
 }
 
+// Extract JSON structure (keys and types only) for large files
+function extractJsonStructure(data: JsonValue, maxDepth = 3, currentDepth = 0): string {
+  if (currentDepth >= maxDepth) {
+    return Array.isArray(data) ? '[...]' : typeof data === 'object' && data !== null ? '{...}' : String(typeof data)
+  }
+
+  if (data === null) return 'null'
+  if (typeof data !== 'object') return typeof data
+
+  if (Array.isArray(data)) {
+    if (data.length === 0) return '[]'
+    // Show first item structure and count
+    const firstItem = extractJsonStructure(data[0], maxDepth, currentDepth + 1)
+    return `[${firstItem}] (${data.length} items)`
+  }
+
+  const entries = Object.entries(data)
+  if (entries.length === 0) return '{}'
+
+  const fields = entries.slice(0, 20).map(([key, value]) => {
+    const valueType = extractJsonStructure(value, maxDepth, currentDepth + 1)
+    return `  "${key}": ${valueType}`
+  })
+
+  if (entries.length > 20) {
+    fields.push(`  ... and ${entries.length - 20} more fields`)
+  }
+
+  return `{\n${fields.join(',\n')}\n}`
+}
+
+// Check if prompt fits in context window, returns { fits: boolean, usage: number, quota: number }
+async function checkPromptFits(session: any, promptText: string): Promise<{ fits: boolean; usage: number; quota: number; available: number }> {
+  try {
+    const inputQuota = session.inputQuota || 6144 // Default Gemini Nano context
+    const inputUsage = session.inputUsage || 0
+
+    // Use measureInputUsage if available (newer API)
+    let promptTokens = 0
+    if (typeof session.measureInputUsage === 'function') {
+      promptTokens = await session.measureInputUsage(promptText)
+    } else if (typeof session.countPromptTokens === 'function') {
+      // Fallback to older API
+      promptTokens = await session.countPromptTokens(promptText)
+    } else {
+      // Rough estimate: ~4 chars per token
+      promptTokens = Math.ceil(promptText.length / 4)
+    }
+
+    const available = inputQuota - inputUsage
+    console.log(`[AI] Token check: prompt=${promptTokens}, used=${inputUsage}, quota=${inputQuota}, available=${available}`)
+
+    return {
+      fits: promptTokens <= available,
+      usage: promptTokens,
+      quota: inputQuota,
+      available
+    }
+  } catch (e) {
+    console.warn('[AI] Could not measure tokens:', e)
+    // Default to allowing if we can't measure
+    return { fits: true, usage: 0, quota: 6144, available: 6144 }
+  }
+}
+
+// Build a smaller prompt using JSON structure instead of full data
+function buildStructurePrompt(jsonData: string, question: string, format: string): string {
+  let parsedData: JsonValue
+  try {
+    parsedData = format === 'yaml' ? yaml.load(jsonData) as JsonValue : JSON.parse(jsonData)
+  } catch {
+    return '' // Can't parse, will fail later
+  }
+
+  const structure = extractJsonStructure(parsedData, 4)
+  return `${format.toUpperCase()} structure (data too large for full context):
+${structure}
+
+Question: ${question}
+Note: I can only see the structure, not all values. Answer based on the structure or ask for a specific path.
+Answer (then write "Source: path.to.value if applicable"):`
+}
+
 async function sendAIMessage() {
   const question = aiInput.value.trim()
   if (!question) return
@@ -1687,11 +1770,38 @@ async function sendAIMessage() {
 
     // Build the prompt with data context
     const formatLabel = currentFormat.toUpperCase()
-    const promptText = `${formatLabel} data:
+    let promptText = `${formatLabel} data:
 ${jsonData}
 
 Question: ${question}
 Answer (then write "Source: path.to.value"):`
+
+    // Check if prompt fits in context window
+    const tokenCheck = await checkPromptFits(aiSession, promptText)
+
+    if (!tokenCheck.fits) {
+      console.log(`[AI] Prompt too large (${tokenCheck.usage} tokens, ${tokenCheck.available} available). Using structure-based approach.`)
+
+      // Try structure-based prompt
+      const structurePrompt = buildStructurePrompt(jsonData, question, currentFormat)
+      if (structurePrompt) {
+        const structureCheck = await checkPromptFits(aiSession, structurePrompt)
+        if (structureCheck.fits) {
+          promptText = structurePrompt
+          console.log('[AI] Using structure-based prompt instead')
+        } else {
+          // Even structure is too big - show error
+          removeLoadingMessage()
+          addAIMessage(
+            `The data is too large for the AI to process (${tokenCheck.usage.toLocaleString()} tokens, limit is ${tokenCheck.available.toLocaleString()}). ` +
+            `Try asking about a specific path, like "What is in settings.theme?" or filter your data first.`,
+            'ai'
+          )
+          aiSend.disabled = false
+          return
+        }
+      }
+    }
 
     console.log('[AI] Calling prompt with:', promptText.substring(0, 100) + '...')
 
