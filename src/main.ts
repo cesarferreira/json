@@ -114,6 +114,11 @@ const aiUnavailable = document.getElementById('ai-unavailable') as HTMLDivElemen
 const aiInput = document.getElementById('ai-input') as HTMLInputElement
 const aiSend = document.getElementById('ai-send') as HTMLButtonElement
 
+// DOM Elements - View Toggle
+const treeViewBtn = document.getElementById('tree-view-btn') as HTMLButtonElement
+const columnViewBtn = document.getElementById('column-view-btn') as HTMLButtonElement
+const columnViewEl = document.getElementById('column-view') as HTMLDivElement
+
 // DOM Elements - Other
 const resizer = document.getElementById('resizer') as HTMLDivElement
 const leftPane = document.querySelector('.left-pane') as HTMLDivElement
@@ -121,6 +126,8 @@ const toast = document.getElementById('toast') as HTMLDivElement
 const helpBtn = document.getElementById('help-btn') as HTMLButtonElement
 
 // State
+let activeView: 'tree' | 'column' = 'tree'
+let columnSelectedPath: string[] = []
 let searchMatches: HTMLElement[] = []
 let currentMatchIndex = -1
 let currentPath = ''
@@ -627,6 +634,235 @@ function renderTree(data: JsonValue) {
   jsonTree.innerHTML = ''
   const tree = createTreeNode(null, data, true, '$')
   jsonTree.appendChild(tree)
+}
+
+// ============ COLUMN VIEW ============
+
+function getValueAtPath(data: JsonValue, pathParts: string[]): JsonValue | undefined {
+  let current: JsonValue = data
+  for (const part of pathParts) {
+    if (current === null || typeof current !== 'object') return undefined
+    if (Array.isArray(current)) {
+      const index = parseInt(part, 10)
+      if (isNaN(index) || index < 0 || index >= current.length) return undefined
+      current = current[index]
+    } else {
+      if (!(part in current)) return undefined
+      current = (current as JsonObject)[part]
+    }
+  }
+  return current
+}
+
+function createColumnItem(
+  key: string | number,
+  value: JsonValue,
+  path: string[],
+  isSelected: boolean
+): HTMLElement {
+  const item = document.createElement('div')
+  item.className = `column-item${isSelected ? ' selected' : ''}`
+  item.dataset.path = JSON.stringify(path)
+
+  const left = document.createElement('div')
+  left.className = 'column-item-left'
+
+  const type = getType(value)
+  const isExpandable = type === 'object' || type === 'array'
+
+  if (typeof key === 'number') {
+    const indexSpan = document.createElement('span')
+    indexSpan.className = 'column-item-index'
+    indexSpan.textContent = `[${key}]`
+    left.appendChild(indexSpan)
+  } else {
+    const keySpan = document.createElement('span')
+    keySpan.className = 'column-item-key'
+    keySpan.textContent = key
+    left.appendChild(keySpan)
+  }
+
+  if (!isExpandable) {
+    const valueSpan = document.createElement('span')
+    valueSpan.className = `column-item-value ${type}`
+    if (type === 'string') {
+      valueSpan.textContent = `"${escapeHtml(value as string)}"`
+    } else if (type === 'null') {
+      valueSpan.textContent = 'null'
+    } else {
+      valueSpan.textContent = String(value)
+    }
+    left.appendChild(valueSpan)
+  } else {
+    const preview = document.createElement('span')
+    preview.className = 'column-item-type'
+    if (type === 'array') {
+      preview.textContent = `${(value as JsonArray).length} items`
+    } else {
+      preview.textContent = `${Object.keys(value as JsonObject).length} keys`
+    }
+    left.appendChild(preview)
+  }
+
+  item.appendChild(left)
+
+  if (isExpandable) {
+    const arrow = document.createElement('span')
+    arrow.className = 'column-item-arrow'
+    arrow.textContent = '›'
+    item.appendChild(arrow)
+  }
+
+  item.addEventListener('click', () => {
+    handleColumnItemClick(path, value)
+  })
+
+  return item
+}
+
+function createColumn(data: JsonValue, pathParts: string[], headerText: string): HTMLElement {
+  const column = document.createElement('div')
+  column.className = 'column'
+
+  const header = document.createElement('div')
+  header.className = 'column-header'
+  header.textContent = headerText
+  header.title = headerText
+  column.appendChild(header)
+
+  const content = document.createElement('div')
+  content.className = 'column-content'
+
+  const type = getType(data)
+
+  if (type === 'object') {
+    const obj = data as JsonObject
+    const keys = Object.keys(obj)
+    if (keys.length === 0) {
+      const empty = document.createElement('div')
+      empty.className = 'column-empty'
+      empty.textContent = 'Empty object'
+      content.appendChild(empty)
+    } else {
+      keys.forEach(key => {
+        const itemPath = [...pathParts, key]
+        const isSelected = columnSelectedPath.length > pathParts.length &&
+          columnSelectedPath[pathParts.length] === key
+        content.appendChild(createColumnItem(key, obj[key], itemPath, isSelected))
+      })
+    }
+  } else if (type === 'array') {
+    const arr = data as JsonArray
+    if (arr.length === 0) {
+      const empty = document.createElement('div')
+      empty.className = 'column-empty'
+      empty.textContent = 'Empty array'
+      content.appendChild(empty)
+    } else {
+      arr.forEach((item, index) => {
+        const itemPath = [...pathParts, String(index)]
+        const isSelected = columnSelectedPath.length > pathParts.length &&
+          columnSelectedPath[pathParts.length] === String(index)
+        content.appendChild(createColumnItem(index, item, itemPath, isSelected))
+      })
+    }
+  } else {
+    const empty = document.createElement('div')
+    empty.className = 'column-empty'
+    empty.textContent = type === 'null' ? 'null' : String(data)
+    content.appendChild(empty)
+  }
+
+  column.appendChild(content)
+  return column
+}
+
+function handleColumnItemClick(path: string[], _value: JsonValue): void {
+  columnSelectedPath = path
+
+  // Show path display
+  const pathStr = '$' + path.map((p) => {
+    if (/^\d+$/.test(p)) return `[${p}]`
+    return `.${p}`
+  }).join('')
+  showPath(pathStr)
+
+  // Re-render column view
+  const result = parseData(jsonInput.value)
+  if (result.valid && result.data !== undefined) {
+    renderColumnView(result.data)
+  }
+}
+
+function renderColumnView(data: JsonValue): void {
+  columnViewEl.innerHTML = ''
+
+  // Always show root column
+  const rootType = getType(data)
+  if (rootType !== 'object' && rootType !== 'array') {
+    const empty = document.createElement('div')
+    empty.className = 'column-empty'
+    empty.textContent = rootType === 'null' ? 'null' : String(data)
+    columnViewEl.appendChild(empty)
+    return
+  }
+
+  // Create root column
+  const rootHeader = rootType === 'array' ? `Array (${(data as JsonArray).length})` : `Object (${Object.keys(data as JsonObject).length})`
+  columnViewEl.appendChild(createColumn(data, [], rootHeader))
+
+  // Create columns for selected path
+  let currentData: JsonValue = data
+  for (let i = 0; i < columnSelectedPath.length; i++) {
+    const pathSoFar = columnSelectedPath.slice(0, i + 1)
+    currentData = getValueAtPath(data, pathSoFar)!
+
+    if (currentData === undefined) break
+
+    const type = getType(currentData)
+    if (type !== 'object' && type !== 'array') break
+
+    const headerText = columnSelectedPath[i]
+    const displayHeader = /^\d+$/.test(headerText)
+      ? `[${headerText}]`
+      : headerText
+    columnViewEl.appendChild(createColumn(currentData, pathSoFar, displayHeader))
+  }
+
+  // Scroll to show the last column
+  columnViewEl.scrollLeft = columnViewEl.scrollWidth
+}
+
+// ============ VIEW TOGGLE ============
+
+function setTreeViewMode(): void {
+  activeView = 'tree'
+  treeViewBtn.classList.add('active')
+  columnViewBtn.classList.remove('active')
+  jsonTree.classList.remove('hidden')
+  columnViewEl.classList.add('hidden')
+}
+
+function setColumnViewMode(): void {
+  activeView = 'column'
+  columnViewBtn.classList.add('active')
+  treeViewBtn.classList.remove('active')
+  columnViewEl.classList.remove('hidden')
+  jsonTree.classList.add('hidden')
+
+  // Render column view with current data
+  const result = parseData(jsonInput.value)
+  if (result.valid && result.data !== undefined) {
+    renderColumnView(result.data)
+  }
+}
+
+function toggleViewMode(): void {
+  if (activeView === 'tree') {
+    setColumnViewMode()
+  } else {
+    setTreeViewMode()
+  }
 }
 
 function showError(message: string) {
@@ -2173,6 +2409,8 @@ function handleInput() {
 
   if (!jsonInput.value.trim()) {
     showEmpty()
+    columnViewEl.innerHTML = ''
+    columnSelectedPath = []
     updateStats(undefined)
     return
   }
@@ -2184,8 +2422,18 @@ function handleInput() {
     if (searchInput.value) {
       performSearch(searchInput.value)
     }
+    // Update column view if active
+    if (activeView === 'column') {
+      // Validate current selection still exists
+      const currentValue = getValueAtPath(result.data, columnSelectedPath)
+      if (currentValue === undefined) {
+        columnSelectedPath = []
+      }
+      renderColumnView(result.data)
+    }
   } else if (result.error) {
     showError(result.error)
+    columnViewEl.innerHTML = ''
     updateStats(undefined)
   }
 
@@ -2327,6 +2575,10 @@ function handleKeyboardShortcuts(e: KeyboardEvent) {
       e.preventDefault()
       clearInput()
       break
+    case 'v':
+      e.preventDefault()
+      toggleViewMode()
+      break
     case 'a':
       e.preventDefault()
       toggleAIPanel()
@@ -2416,6 +2668,10 @@ themeBtn.addEventListener('click', toggleTheme)
 // Mode toggle
 editorModeBtn.addEventListener('click', setEditorMode)
 diffModeBtn.addEventListener('click', setDiffMode)
+
+// View Toggle (Tree/Column)
+treeViewBtn.addEventListener('click', setTreeViewMode)
+columnViewBtn.addEventListener('click', setColumnViewMode)
 
 // Search
 searchInput.addEventListener('input', () => performSearch(searchInput.value))

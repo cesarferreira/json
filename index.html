@@ -106,10 +106,20 @@
         <div class="resizer" id="resizer"></div>
         <div class="pane right-pane">
           <div class="pane-header">
-            <span>Tree View</span>
+            <div class="view-toggle">
+              <button id="tree-view-btn" class="view-btn active" title="Tree View (v)">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3z"/></svg>
+                Tree
+              </button>
+              <button id="column-view-btn" class="view-btn" title="Column View (v)">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h5v18H3zM10 3h5v18h-5zM17 3h4v18h-4z"/></svg>
+                Columns
+              </button>
+            </div>
             <span id="stats" class="stats"></span>
           </div>
           <div id="json-tree" class="json-tree"></div>
+          <div id="column-view" class="column-view hidden"></div>
         </div>
       </main>
 
@@ -168,6 +178,7 @@
             <div class="shortcut-row"><kbd>/</kbd><span>Search</span></div>
             <div class="shortcut-row"><kbd>t</kbd><span>Toggle Theme</span></div>
             <div class="shortcut-row"><kbd>d</kbd><span>Toggle Diff Mode</span></div>
+            <div class="shortcut-row"><kbd>v</kbd><span>Toggle Tree/Column View</span></div>
             <div class="shortcut-row"><kbd>x</kbd><span>Clear</span></div>
             <div class="shortcut-row"><kbd>a</kbd><span>Private AI (offline)</span></div>
             <div class="shortcut-row"><kbd>Esc</kbd><span>Close / Unfocus</span></div>
