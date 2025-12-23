@@ -1893,11 +1893,24 @@ function toggleAIPanel() {
 }
 
 function getGoogleChromeVersion(): number | null {
+  // Use User-Agent Client Hints API (most reliable method)
+  const uaData = (navigator as any).userAgentData
+  if (uaData?.brands) {
+    const chromeEntry = uaData.brands.find((brand: { brand: string; version: string }) =>
+      brand.brand === 'Google Chrome'
+    )
+    if (chromeEntry) {
+      return parseInt(chromeEntry.version, 10)
+    }
+    // If brands exist but no Google Chrome, it's a different Chromium browser
+    return null
+  }
+
+  // Fallback to user agent string parsing
   const ua = navigator.userAgent
 
   // Check for other Chromium browsers that report as Chrome but aren't
-  // Arc, Brave, Edge, Opera, Vivaldi, etc. all have their own identifiers
-  const isNotGoogleChrome = /Edg\/|OPR\/|Brave|Vivaldi|Arc\//i.test(ua)
+  const isNotGoogleChrome = /Edg\/|OPR\/|Brave|Vivaldi|Arc\/|Opera|Yandex|SamsungBrowser|Chromium/i.test(ua)
   if (isNotGoogleChrome) {
     return null
   }
@@ -1996,6 +2009,14 @@ function setupAIRequirementsLinks() {
 }
 
 async function initAI() {
+  // Only show AI features on Google Chrome (Gemini Nano is Chrome-exclusive)
+  const isGoogleChrome = getGoogleChromeVersion() !== null
+  if (!isGoogleChrome) {
+    aiFab.style.display = 'none'
+    aiRequirements.classList.remove('hidden')
+    return
+  }
+
   aiAvailable = await checkAIAvailability()
 
   // Update status indicators
@@ -2007,6 +2028,8 @@ async function initAI() {
   // Show AI requirements in help modal if AI is not available
   if (!aiAvailable) {
     aiRequirements.classList.remove('hidden')
+    // Hide the FAB button if AI is not supported
+    aiFab.style.display = 'none'
   } else {
     aiRequirements.classList.add('hidden')
   }
